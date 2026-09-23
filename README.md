@@ -222,6 +222,62 @@ LOWDRUS verifica compatibilidade
             └── aprovado
 ```
 
+## Ideias e evoluções futuras
+
+Estas possibilidades fazem parte da arquitetura e do roadmap, mas **não devem ser confundidas com recursos já implementados**.
+
+### Múltiplas versões do macOS
+
+O LOWDRUS poderá evoluir de um instalador Tahoe para um sistema com **perfis de versão do macOS**, mantendo Tahoe como primeiro alvo validado.
+
+Exemplos de famílias que poderão ser estudadas:
+- macOS Big Sur;
+- macOS Monterey;
+- Ventura, Sonoma e Sequoia;
+- Tahoe;
+- versões futuras, somente depois que existirem e forem validadas.
+
+Cada versão deverá possuir uma matriz de compatibilidade própria. O LOWDRUS não deve presumir que a mesma combinação de OpenCore, EFI, ACPI, kexts, patches, SMBIOS e pós-instalação funciona em todas as versões.
+
+Fluxo planejado:
+
+```
+Hardware detectado
+       |
+       v
+Hardware Profile
+       |
+       v
+Matriz de compatibilidade
+       |
+       +--> macOS não validado -> bloquear/alertar
+       |
+       +--> macOS validado
+                 |
+                 v
+           OS Profile específico
+```
+
+### Arquitetura multi-hardware
+
+O Core poderá ser reutilizável, enquanto cada computador recebe seu próprio Hardware Profile. O perfil atual continua específico ao Razer Blade Pro RZ09-0117 (2014).
+
+### Atualização automática e segura
+
+O update engine planejado poderá consultar GitHub Releases, validar versão, hashes e compatibilidade, criar backup da configuração atual, aplicar a atualização e executar rollback em caso de falha. EFI conhecida como funcional não deverá ser substituída cegamente.
+
+### Captura automática do perfil funcional
+
+Depois que uma instalação estiver plenamente funcional, o LOWDRUS poderá gerar um snapshot/versionamento do perfil comprovado: EFI, OpenCore, ACPI, kexts, propriedades de dispositivos, rede, áudio, USB, energia, pós-instalação, inventário, hashes e testes.
+
+### Recuperação interna
+
+Está planejada uma cópia de recuperação no SSD interno para reduzir a dependência da mídia externa em reinstalações e reparos comuns. Uma mídia externa continuará necessária como contingência para falha/substituição do SSD ou corrupção grave.
+
+### Suporte remoto e continuidade de diagnóstico
+
+Quando Ethernet ou Wi-Fi estiver funcional no ambiente em execução, o LOWDRUS poderá oferecer diagnóstico remoto autenticado, coleta de logs e assistência. Durante fases sem rede ou reinicializações, deverá persistir logs localmente e permitir retomada posterior.
+
 ## Como instalar / executar
 
 ### Estado atual do projeto
