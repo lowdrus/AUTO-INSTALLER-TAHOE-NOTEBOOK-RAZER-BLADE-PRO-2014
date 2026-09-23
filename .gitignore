@@ -1,0 +1,21 @@
+# Apple/macOS installer payloads
+*.pkg
+*.dmg
+*.ipsw
+
+# Local audit / logs
+AUDITORIA/
+*.log
+
+# Machine-specific secrets
+secrets/
+*.secret
+.env
+.env.*
+
+# Temporary mounts/builds
+EFI-MOUNT-TEMP/
+build/
+dist/
+.DS_Store
+Thumbs.db
