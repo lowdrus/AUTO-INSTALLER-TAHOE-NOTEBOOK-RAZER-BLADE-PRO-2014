@@ -143,6 +143,40 @@ Cuidados:
 
 Portanto, o objetivo é **reduzir**, e não eliminar totalmente, a necessidade de uma mídia externa de emergência.
 
+## Suporte remoto durante instalação e recuperação
+
+O LOWDRUS foi projetado para futuramente oferecer **suporte remoto de diagnóstico durante instalação, recuperação e pós-instalação**, sempre que o ambiente em execução possuir uma interface de rede funcional.
+
+### Prioridade de conexão
+
+1. **Ethernet** — caminho preferencial para instalação/Recovery por ser mais simples e previsível.
+2. **Wi-Fi** — caminho alternativo quando houver driver/kext compatível carregado no ambiente de instalação.
+3. **Offline/local** — se nenhuma rede funcionar, o LOWDRUS continua operando localmente e grava logs persistentes para análise posterior.
+
+### Arquitetura planejada
+
+Quando a rede estiver funcional, o LOWDRUS poderá iniciar um serviço remoto controlado para:
+- diagnóstico;
+- coleta de logs;
+- inspeção do hardware;
+- acompanhamento do instalador;
+- execução assistida de correções;
+- exportação de relatórios.
+
+O projeto deverá preferir protocolos autenticados, como SSH, e nunca expor acesso remoto sem consentimento/configuração explícita.
+
+### Limitação importante
+
+**Acesso remoto não é garantido em todas as fases do boot ou instalação.** Antes do carregamento de um sistema/recovery com drivers de rede compatíveis, não existe conectividade para o LOWDRUS usar. Reinicializações também interrompem a sessão e exigem reconexão.
+
+No hardware-alvo atual:
+- Ethernet: Realtek RTL8168;
+- Wi-Fi: Intel AC7260.
+
+A conectividade desses dispositivos no ambiente Tahoe/Recovery ainda precisa ser validada. Portanto, o suporte remoto está no roadmap e **ainda não deve ser apresentado como funcional**.
+
+O LOWDRUS deverá manter logs localmente mesmo quando estiver offline, permitindo recuperar o diagnóstico após uma reinicialização ou falha.
+
 ## Atualizações pelo GitHub
 
 O repositório será a fonte versionada do LOWDRUS.
