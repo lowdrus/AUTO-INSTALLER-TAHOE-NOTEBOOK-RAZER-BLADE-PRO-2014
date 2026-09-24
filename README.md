@@ -1,12 +1,12 @@
-# LOWDRUS AUTO-INSTALLER TAHOE — Razer Blade Pro 2014
+# LOWDRUS INSTALLER TAHOE — Razer Blade Pro 2014
 
-Projeto em desenvolvimento para criar um **auto-installer offline de Hackintosh/macOS Tahoe**, voltado inicialmente ao **Razer Blade Pro RZ09-0117 (2014)**.
+Projeto em desenvolvimento para criar um **instalador offline de Hackintosh/macOS Tahoe**, voltado inicialmente ao **Razer Blade Pro RZ09-0117 (2014)**.
 
 > **Status atual:** em construção e validação. A mídia externa de testes já possui EFI/OpenCore validada e o pacote original do macOS Tahoe copiado com SHA-256 conferido, mas o fluxo completo de instalação automatizada ainda não está finalizado.
 
 ## Objetivo
 
-O LOWDRUS AUTO-INSTALLER pretende transformar um processo manual de Hackintosh em um fluxo repetível, auditável e progressivamente automatizado.
+O LOWDRUS INSTALLER pretende transformar um processo manual de Hackintosh em um fluxo repetível, auditável e progressivamente automatizado.
 
 A meta é permitir:
 - instalação offline do macOS Tahoe;
@@ -57,7 +57,7 @@ Esses valores pertencem ao perfil de desenvolvimento atual e podem mudar conform
 
 **Não, a versão atual não deve ser tratada como um instalador universal.**
 
-O LOWDRUS está sendo construído primeiro como um **auto-installer específico e validado para o Razer Blade Pro RZ09-0117**.
+O LOWDRUS está sendo construído primeiro como um **instalador específico e validado para o Razer Blade Pro RZ09-0117**.
 
 A arquitetura, porém, está sendo pensada para no futuro suportar **perfis de hardware**. Isso poderá permitir variantes para outros computadores, desde que cada modelo tenha:
 - identificação de hardware;
@@ -133,7 +133,7 @@ Esses dois modos não são a mesma coisa e serão mantidos separadamente.
 
 Também está planejado um **modo de recuperação interno**.
 
-A ideia é reservar uma área apropriada no SSD Samsung do Razer para manter componentes de recuperação do LOWDRUS, permitindo iniciar processos de reparo ou reinstalação mesmo sem a Lexar.
+A ideia é reservar uma área apropriada no SSD Samsung do Razer para manter componentes de recuperação do LOWDRUS, permitindo iniciar processos de reparo ou reinstalação mesmo sem a mídia externa LOWDRUS.
 
 Cuidados:
 - a área de recuperação não pode ser apagada durante uma reinstalação comum;
@@ -343,12 +343,12 @@ Operações destrutivas devem exigir confirmação explícita e identificação 
 Já validado:
 - migração do projeto para `LOWDRUS-INSTALLER`;
 - backup da EFI funcional;
-- mídia Lexar identificada por serial e tamanho;
-- GPT criado na Lexar;
+- SSD externo LOWDRUS (Lexar) identificado por serial e tamanho;
+- GPT criado no SSD externo LOWDRUS (Lexar);
 - EFI FAT32 criada;
 - **42 arquivos da EFI/OpenCore copiados e comparados por SHA-256**;
 - partição de dados exFAT criada;
-- `InstallAssistant.pkg` copiado para a Lexar;
+- `InstallAssistant.pkg` copiado para o SSD externo LOWDRUS (Lexar);
 - SHA-256 do pacote copiado conferido com o original.
 
 Ainda pendente:
@@ -400,5 +400,5 @@ Este repositório deve hospedar o **código, automação, documentação e perfi
 
 ---
 
-**LOWDRUS AUTO-INSTALLER**  
-Auto-installer offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e validado para o **Razer Blade Pro RZ09-0117 (2014)**.
+**LOWDRUS INSTALLER**  
+Instalador offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e validado para o **Razer Blade Pro RZ09-0117 (2014)**.
