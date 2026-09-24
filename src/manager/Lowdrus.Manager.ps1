@@ -103,7 +103,7 @@ $footer.Text='LOWDRUS Engine  |  modo seguro / somente leitura  |  console avanc
 $footer.HorizontalAlignment='Center';$footer.Foreground=Brush 145 151 161;$footer.Margin='0,14,0,0'
 [void]$outer.Children.Add($footer)
 
-$labels=[ordered]@{hardware='Hardware Razer';lexar='Lexar LOWDRUS';efi='OpenCore / EFI';builder='Tahoe Builder';payload='InstallAssistant';samsung='Samsung SSD'}
+$labels=[ordered]@{hardware='Notebook alvo';lexar='Midia LOWDRUS';efi='OpenCore / EFI';builder='Tahoe Builder';payload='InstallAssistant';storage='Armazenamento interno'}
 function Render($result){
  $checks.Items.Clear()
  foreach($k in $labels.Keys){
