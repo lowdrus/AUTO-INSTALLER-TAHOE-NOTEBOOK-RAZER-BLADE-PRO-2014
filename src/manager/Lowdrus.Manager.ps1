@@ -26,7 +26,7 @@ function StateBrush([string]$state) {
 }
 
 [xml]$xaml = @"
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml"
+<Window xmlns="clr-namespace:System.Windows;assembly=PresentationFramework"
         Title="LOWDRUS INSTALLER"
         Width="900"
         Height="650"
