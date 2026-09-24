@@ -1,12 +1,9 @@
 param([string]$Root=(Split-Path -Parent $PSScriptRoot))
 $ErrorActionPreference='Stop'
 
-# Windows PowerShell 5.1 needs the WPF assemblies loaded explicitly before XamlReader.
-Add-Type -AssemblyName WindowsBase
-Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName PresentationFramework
-Add-Type -AssemblyName System.Xaml
-Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName PresentationCore
+Add-Type -AssemblyName WindowsBase
 
 $engine = Join-Path $Root 'engine\windows\Lowdrus.Engine.ps1'
 
@@ -18,101 +15,117 @@ function Run-Engine([string]$action) {
 
 function StateBrush([string]$state) {
     switch ($state) {
-        'ok'    { '#35D07F' }
-        'error' { '#FF6262' }
-        'warn'  { '#E7B84B' }
-        default { '#8B93A1' }
+        'ok'    { [Windows.Media.Brushes]::LightGreen }
+        'error' { [Windows.Media.Brushes]::Tomato }
+        'warn'  { [Windows.Media.Brushes]::Khaki }
+        default { [Windows.Media.Brushes]::LightGray }
     }
 }
 
-[xml]$xaml = @"
-<Window xmlns="clr-namespace:System.Windows;assembly=PresentationFramework"
-        Title="LOWDRUS INSTALLER"
-        Width="900"
-        Height="650"
-        MinWidth="760"
-        MinHeight="560"
-        WindowStartupLocation="CenterScreen"
-        Background="#090B10"
-        Foreground="White">
-  <Grid Margin="34">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
+# Build WPF directly in PowerShell. No XAML parser dependency.
+$w = New-Object Windows.Window
+$w.Title = 'LOWDRUS INSTALLER'
+$w.Width = 900
+$w.Height = 650
+$w.MinWidth = 760
+$w.MinHeight = 560
+$w.WindowStartupLocation = 'CenterScreen'
+$w.Background = [Windows.Media.Brushes]::Black
 
-    <StackPanel>
-      <TextBlock Text="LOWDRUS INSTALLER" FontSize="30" FontWeight="Bold"/>
-      <TextBlock Text="Desktop Manager - Razer Blade Pro - macOS Tahoe"
-                 Opacity=".65"
-                 Margin="0,5,0,22"/>
-    </StackPanel>
+$rootGrid = New-Object Windows.Controls.Grid
+$rootGrid.Margin = '34'
+$r1 = New-Object Windows.Controls.RowDefinition
+$r1.Height = [Windows.GridLength]::Auto
+$r2 = New-Object Windows.Controls.RowDefinition
+$r2.Height = New-Object Windows.GridLength(1,[Windows.GridUnitType]::Star)
+$r3 = New-Object Windows.Controls.RowDefinition
+$r3.Height = [Windows.GridLength]::Auto
+[void]$rootGrid.RowDefinitions.Add($r1)
+[void]$rootGrid.RowDefinitions.Add($r2)
+[void]$rootGrid.RowDefinitions.Add($r3)
 
-    <Border Grid.Row="1"
-            Background="#151821"
-            CornerRadius="20"
-            Padding="24">
-      <StackPanel>
-        <TextBlock Text="Estado do sistema"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Margin="0,0,0,12"/>
+$header = New-Object Windows.Controls.StackPanel
+$title = New-Object Windows.Controls.TextBlock
+$title.Text = 'LOWDRUS INSTALLER'
+$title.FontSize = 30
+$title.FontWeight = 'Bold'
+$title.Foreground = [Windows.Media.Brushes]::White
+$subtitle = New-Object Windows.Controls.TextBlock
+$subtitle.Text = 'Desktop Manager - Razer Blade Pro - macOS Tahoe'
+$subtitle.Foreground = [Windows.Media.Brushes]::LightGray
+$subtitle.Margin = '0,5,0,22'
+[void]$header.Children.Add($title)
+[void]$header.Children.Add($subtitle)
+[void]$rootGrid.Children.Add($header)
 
-        <ListBox Name="Checks"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 Foreground="White"/>
+$panelBorder = New-Object Windows.Controls.Border
+[Windows.Controls.Grid]::SetRow($panelBorder,1)
+$panelBorder.Background = New-Object Windows.Media.SolidColorBrush([Windows.Media.Color]::FromRgb(21,24,33))
+$panelBorder.CornerRadius = '20'
+$panelBorder.Padding = '24'
 
-        <TextBlock Name="Status"
-                   TextWrapping="Wrap"
-                   Opacity=".72"
-                   Margin="0,18,0,14"/>
+$panel = New-Object Windows.Controls.StackPanel
+$section = New-Object Windows.Controls.TextBlock
+$section.Text = 'Estado do sistema'
+$section.FontSize = 18
+$section.FontWeight = 'SemiBold'
+$section.Foreground = [Windows.Media.Brushes]::White
+$section.Margin = '0,0,0,12'
+[void]$panel.Children.Add($section)
 
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-          </Grid.ColumnDefinitions>
+$checks = New-Object Windows.Controls.ListBox
+$checks.Background = [Windows.Media.Brushes]::Transparent
+$checks.BorderThickness = '0'
+$checks.Foreground = [Windows.Media.Brushes]::White
+[void]$panel.Children.Add($checks)
 
-          <Button Name="Diagnose"
-                  Content="DIAGNOSTICO COMPLETO"
-                  Height="46"
-                  Margin="0,0,6,0"/>
+$status = New-Object Windows.Controls.TextBlock
+$status.Text = 'Inicializando LOWDRUS Engine...'
+$status.TextWrapping = 'Wrap'
+$status.Foreground = [Windows.Media.Brushes]::LightGray
+$status.Margin = '0,18,0,14'
+[void]$panel.Children.Add($status)
 
-          <Button Name="Refresh"
-                  Grid.Column="1"
-                  Content="ATUALIZAR ESTADO"
-                  Height="46"
-                  Margin="6,0,0,0"/>
-        </Grid>
+$buttons = New-Object Windows.Controls.Grid
+$c1 = New-Object Windows.Controls.ColumnDefinition
+$c2 = New-Object Windows.Controls.ColumnDefinition
+[void]$buttons.ColumnDefinitions.Add($c1)
+[void]$buttons.ColumnDefinitions.Add($c2)
 
-        <Button Name="Install"
-                Content="INSTALAR macOS TAHOE"
-                Height="52"
-                Margin="0,12,0,0"
-                IsEnabled="False"
-                FontWeight="Bold"/>
-      </StackPanel>
-    </Border>
+$diag = New-Object Windows.Controls.Button
+$diag.Content = 'DIAGNOSTICO COMPLETO'
+$diag.Height = 46
+$diag.Margin = '0,0,6,0'
+[void]$buttons.Children.Add($diag)
 
-    <TextBlock Grid.Row="2"
-               Text="LOWDRUS Engine - modo seguro / somente leitura"
-               HorizontalAlignment="Center"
-               Opacity=".45"
-               Margin="0,18,0,0"/>
-  </Grid>
-</Window>
-"@
+$refresh = New-Object Windows.Controls.Button
+$refresh.Content = 'ATUALIZAR ESTADO'
+$refresh.Height = 46
+$refresh.Margin = '6,0,0,0'
+[Windows.Controls.Grid]::SetColumn($refresh,1)
+[void]$buttons.Children.Add($refresh)
+[void]$panel.Children.Add($buttons)
 
-$reader = New-Object System.Xml.XmlNodeReader $xaml
-$w = [Windows.Markup.XamlReader]::Load($reader)
+$install = New-Object Windows.Controls.Button
+$install.Content = 'INSTALAR macOS TAHOE'
+$install.Height = 52
+$install.Margin = '0,12,0,0'
+$install.FontWeight = 'Bold'
+$install.IsEnabled = $false
+[void]$panel.Children.Add($install)
 
-$checks  = $w.FindName('Checks')
-$status  = $w.FindName('Status')
-$diag    = $w.FindName('Diagnose')
-$refresh = $w.FindName('Refresh')
-$install = $w.FindName('Install')
+$panelBorder.Child = $panel
+[void]$rootGrid.Children.Add($panelBorder)
+
+$footer = New-Object Windows.Controls.TextBlock
+$footer.Text = 'LOWDRUS Engine - modo seguro / somente leitura'
+$footer.Foreground = [Windows.Media.Brushes]::Gray
+$footer.HorizontalAlignment = 'Center'
+$footer.Margin = '0,18,0,0'
+[Windows.Controls.Grid]::SetRow($footer,2)
+[void]$rootGrid.Children.Add($footer)
+
+$w.Content = $rootGrid
 
 $labels = [ordered]@{
     hardware = 'Hardware Razer'
@@ -123,24 +136,20 @@ $labels = [ordered]@{
     samsung  = 'Samsung SSD'
 }
 
-function Render($r) {
+function Render($result) {
     $checks.Items.Clear()
-
     foreach ($k in $labels.Keys) {
-        $v = $r.checks.$k
+        $v = $result.checks.$k
         if (-not $v) { continue }
-
         $tb = New-Object Windows.Controls.TextBlock
         $tb.FontSize = 15
         $tb.Margin = '0,7,0,7'
-        $tb.Text = "[{0}] {1} - {2}" -f $v.state.ToUpperInvariant(), $labels[$k], $v.text
+        $tb.Text = '[{0}] {1} - {2}' -f $v.state.ToUpperInvariant(), $labels[$k], $v.text
         $tb.Foreground = StateBrush $v.state
-
         [void]$checks.Items.Add($tb)
     }
-
-    $status.Text = $r.message
-    $install.IsEnabled = [bool]$r.installReady
+    $status.Text = $result.message
+    $install.IsEnabled = [bool]$result.installReady
 }
 
 function SafeRun([string]$action) {
@@ -157,13 +166,11 @@ function SafeRun([string]$action) {
 
 $refresh.Add_Click({ SafeRun 'status' })
 $diag.Add_Click({ SafeRun 'diagnose' })
-
 $install.Add_Click({
-    [System.Windows.MessageBox]::Show(
+    [Windows.MessageBox]::Show(
         'A instalacao permanece bloqueada ate o ambiente Razer ser validado.',
         'LOWDRUS INSTALLER'
     ) | Out-Null
 })
-
 $w.Add_ContentRendered({ SafeRun 'status' })
-$w.ShowDialog() | Out-Null
+[void]$w.ShowDialog()
