@@ -1,0 +1,5 @@
+.lowdrus-gui{position:relative;overflow:hidden;width:100%;height:100%;min-height:240px;background:#000;border-radius:inherit;isolation:isolate}
+.lowdrus-gui__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0}
+.lowdrus-gui__shade{position:absolute;inset:0;background:transparent;pointer-events:none;z-index:1}
+.lowdrus-gui__content{position:relative;z-index:2;width:100%;height:100%;box-sizing:border-box}
+.lowdrus-gui[data-dim="true"] .lowdrus-gui__shade{background:rgba(0,0,0,.22)}
