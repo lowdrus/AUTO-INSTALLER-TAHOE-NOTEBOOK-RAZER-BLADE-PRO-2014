@@ -83,9 +83,20 @@ try {
     $checks.efi=C warn 'EFI fisica requer inspecao privilegiada segura'
   }
 
-  $checks.hardware=C warn 'Perfil Razer sera validado no notebook'
-  $samsung=Get-CimInstance Win32_DiskDrive | Where-Object {$_.Model -match 'Samsung'} | Select-Object -First 1
-  $checks.samsung=if($samsung){C warn 'Samsung visivel no Desktop - nao e alvo aqui'}else{C warn 'Samsung interno sera identificado no Razer'}
+  $csNow=Get-CimInstance Win32_ComputerSystem
+  $isTargetRazer=(($csNow.Manufacturer+' '+$csNow.Model) -match 'Razer') -and (($csNow.Model -match 'Blade Pro') -or ($csNow.Model -match 'RZ09-0117'))
+  if($isTargetRazer){
+    $checks.hardware=C ok ('Razer compativel detectado: '+$csNow.Manufacturer+' '+$csNow.Model)
+  } else {
+    $checks.hardware=C warn ('Manager em '+$csNow.Manufacturer+' '+$csNow.Model+'; instalacao so sera liberada no Razer Blade Pro RZ09-0117 (2014)')
+  }
+  $internalDisks=@(Get-CimInstance Win32_DiskDrive | Where-Object {$_.InterfaceType -ne 'USB'})
+  if($isTargetRazer -and $internalDisks.Count -gt 0){
+    $models=($internalDisks | ForEach-Object {$_.Model} | Where-Object {$_}) -join '; '
+    $checks.storage=C warn ('Armazenamento interno detectado: '+$models+'; alvo ainda nao selecionado')
+  } else {
+    $checks.storage=C warn 'Armazenamento de destino sera identificado e confirmado no Razer; nenhuma marca e obrigatoria'
+  }
 
   if($Action -eq 'diagnose' -and $vol) {
     if($tar -and $tar.Length -eq $EXPECTED_TAR_SIZE) {
