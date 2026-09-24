@@ -6,9 +6,14 @@ $EXPECTED_PKG_SIZE=18381960622
 $EXPECTED_PKG_SHA='23261873087FCCA0432E6CCC293C858ED9CE5D22C528FFF801BB1653786FA9AE'
 function C($state,$text){[ordered]@{state=$state;text=$text}}
 function Find-LowdrusVolume {
-  Get-CimInstance Win32_LogicalDisk -Filter "DriveType=2" | ForEach-Object {
+  Get-CimInstance Win32_LogicalDisk | Where-Object { $_.DriveType -in 2,3 } | ForEach-Object {
     $root="$($_.DeviceID)\"
-    if((Test-Path "$root\LOWDRUS-TRANSPORT") -or (Test-Path "$root\InstallAssistant.pkg")){[pscustomobject]@{Root=$root;Label=$_.VolumeName;Size=$_.Size}}
+    $isLowdrusLabel = $_.VolumeName -eq 'LOWDRUS'
+    $hasTransport = Test-Path (Join-Path $root 'LOWDRUS-TRANSPORT')
+    $hasPkg = Test-Path (Join-Path $root 'InstallAssistant.pkg')
+    if($isLowdrusLabel -or $hasTransport -or $hasPkg){
+      [pscustomobject]@{Root=$root;Label=$_.VolumeName;Size=$_.Size;DriveType=$_.DriveType}
+    }
   } | Select-Object -First 1
 }
 function Find-FileDeep([string]$root,[string]$name){
