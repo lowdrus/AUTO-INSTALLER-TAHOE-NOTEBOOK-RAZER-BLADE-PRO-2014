@@ -1,7 +1,11 @@
 param([string]$Root=(Split-Path -Parent $PSScriptRoot))
 $ErrorActionPreference='Stop'
 
+# Windows PowerShell 5.1 needs the WPF assemblies loaded explicitly before XamlReader.
+Add-Type -AssemblyName WindowsBase
+Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName PresentationFramework
+Add-Type -AssemblyName System.Xaml
 Add-Type -AssemblyName System.Windows.Forms
 
 $engine = Join-Path $Root 'engine\windows\Lowdrus.Engine.ps1'
