@@ -1,15 +1,21 @@
 LOWDRUS GUI COMPONENT
 
-O pacote transforma a animação do wallpaper em um componente visual reutilizável para uma GUI.
+Componente visual oficial do LOWDRUS INSTALLER.
 
 ARQUIVOS
-- assets/lowdrus_razer_plush.mp4 : vídeo 1920x1080, 29.97 fps, com a pelúcia animada no canto inferior direito.
+- assets/lowdrus_razer_plush.mp4 : vídeo oficial 1920x1080 com a composição LOWDRUS/Razer.
+- assets/preview.jpg              : preview estático da GUI.
 - lowdrus-gui.js                  : componente sem dependências externas.
 - lowdrus-gui.css                 : estilos do componente.
 - demo.html                       : demonstração local.
 
+ÁUDIO
+- O componente não possui controle de volume.
+- O vídeo é sempre mudo (muted/defaultMuted + volume 0).
+- A API não expõe mute() nem setVolume().
+
 COMO USAR
-1. Copie a pasta lowdrus_gui para dentro do seu projeto.
+1. Copie a pasta lowdrus_gui para dentro do projeto.
 2. Inclua:
    <link rel="stylesheet" href="lowdrus_gui/lowdrus-gui.css">
    <script src="lowdrus_gui/lowdrus-gui.js"></script>
@@ -27,11 +33,9 @@ Use a opção content:
 API
 - gui.play()
 - gui.pause()
-- gui.mute(true/false)
-- gui.setVolume(0..1)
 - gui.setDim(true/false)
 - gui.setOpacity(0..1)
 - gui.destroy()
 
 OBSERVAÇÃO
-O vídeo já contém a composição solicitada: cenário original + pelúcia animada no canto inferior direito. O vídeo original também foi preservado no pacote anterior do Wallpaper Engine; este componente é uma cópia de uso na GUI.
+O vídeo contém a composição visual oficial enviada para o LOWDRUS INSTALLER. O componente é a base visual; os controles funcionais ficam na camada de aplicação/Engine.
