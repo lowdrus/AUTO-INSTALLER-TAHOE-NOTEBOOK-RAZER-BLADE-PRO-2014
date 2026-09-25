@@ -47,7 +47,6 @@ Este projeto foi criado e está sendo validado no seguinte equipamento:
   - `keepsyms=1`
   - `-wegnoegpu`
   - `-no_compat_check`
-  - `revpatch=sbvmm`
 - Intel HD 4600 platform-id: `05 00 26 0A`
 - Intel HD 4600 device-id: `12 04 00 00`
 
@@ -170,8 +169,9 @@ O projeto deverá preferir protocolos autenticados, como SSH, e nunca expor aces
 **Acesso remoto não é garantido em todas as fases do boot ou instalação.** Antes do carregamento de um sistema/recovery com drivers de rede compatíveis, não existe conectividade para o LOWDRUS usar. Reinicializações também interrompem a sessão e exigem reconexão.
 
 No hardware-alvo atual:
-- Ethernet: Realtek RTL8168;
-- Wi-Fi: Intel AC7260.
+- Ethernet: Realtek RTL8168 (driver carregado, porém sem link físico validado no teste atual);
+- Wi-Fi interno: Intel AC7260 (alternativa futura);
+- Wi-Fi/Bluetooth USB em teste prioritário: Realtek RTL8821CU combo, VID 0BDA / PID C820.
 
 A conectividade desses dispositivos no ambiente Tahoe/Recovery ainda precisa ser validada. Portanto, o suporte remoto está no roadmap e **ainda não deve ser apresentado como funcional**.
 
@@ -354,10 +354,8 @@ Já validado:
 Ainda pendente:
 - gerar/validar a estrutura completa de mídia de instalação do macOS;
 - eliminar o fluxo manual de Terminal;
-- completar instalação do Tahoe;
 - validar todos os dispositivos do notebook;
 - capturar o perfil final estável;
-- construir a interface gráfica LOWDRUS;
 - implementar mecanismo de atualização;
 - implementar recuperação interna;
 - testes de reinstalação e rollback.
@@ -383,14 +381,14 @@ Este repositório deve hospedar o **código, automação, documentação e perfi
 - [x] Validar EFI por SHA-256
 - [x] Copiar InstallAssistant.pkg e validar SHA-256
 - [ ] Criar mídia Tahoe totalmente inicializável
-- [ ] Instalar Tahoe no Razer
+- [x] Instalar Tahoe no Razer
 - [ ] Finalizar aceleração gráfica
 - [ ] Validar áudio
 - [ ] Validar Ethernet
-- [ ] Validar Wi-Fi/Bluetooth
+- [ ] Validar Wi-Fi/Bluetooth (RTL8821CU USB prioritário; AC7260 interno depois)
 - [ ] Validar USB e energia
 - [ ] Capturar perfil final do Razer
-- [ ] Criar interface LOWDRUS
+- [x] Criar base visual oficial da interface LOWDRUS
 - [ ] Criar modo one-click
 - [ ] Implementar atualização por GitHub Releases
 - [ ] Implementar rollback
@@ -402,3 +400,13 @@ Este repositório deve hospedar o **código, automação, documentação e perfi
 
 **LOWDRUS INSTALLER**  
 Instalador offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e validado para o **Razer Blade Pro RZ09-0117 (2014)**.
+
+
+## Atualização de desenvolvimento — 25/09/2026
+
+- macOS Tahoe 26.7 (25G229) instalado e inicializando no Razer.
+- Interface visual oficial do LOWDRUS adicionada ao repositório com fundo animado Razer e camada funcional desacoplada do Engine.
+- Regra de áudio da GUI: **sem volume e sem controles de áudio**; o vídeo de fundo roda sempre mudo.
+- Adaptador USB prioritário identificado como **Realtek RTL8821CU**, VID `0BDA`, PID `C820`; o próprio `RtWlanU.kext` contém correspondência explícita para esse dispositivo/interface.
+- TESTE-07 confirmou boot normal com `RtWlanU.kext` e `RtWlanU1827.kext` injetados pelo OpenCore, mas o Tahoe rejeitou o driver por dependência não resolvida de `com.apple.iokit.IOUSBFamily`.
+- TESTE-08 foi criado como laboratório separado para investigar compatibilidade USB/Tahoe sem alterar o TESTE-07 conhecido como inicializável.
