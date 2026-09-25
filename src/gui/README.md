@@ -1,21 +1,45 @@
 # LOWDRUS GUI
 
-Base visual oficial fornecida para o LOWDRUS INSTALLER.
+Base visual oficial do **LOWDRUS INSTALLER**.
+
+## Assets oficiais
+
+A GUI usa os assets versionados em:
+
+- `lowdrus_gui/assets/lowdrus_razer_plush.mp4`
+- `lowdrus_gui/assets/preview.jpg`
+
+O vídeo é o fundo visual animado oficial e o JPG funciona como poster/fallback durante o carregamento.
 
 ## Regra de áudio
 
 A GUI é estritamente visual. O vídeo de fundo roda **sempre mudo**:
+
 - `muted=true`;
 - `defaultMuted=true`;
 - volume forçado a `0`;
-- nenhum controle de volume/mute é exposto pela API ou pelo fluxo normal.
+- nenhum controle de volume/mute é exposto pela API.
 
 ## Integração
 
-A camada `.lowdrus-gui__content` recebe as telas funcionais do LOWDRUS INSTALLER. A aparência permanece desacoplada do LOWDRUS Engine, que será responsável por operações privilegiadas e diagnóstico.
+A camada `.lowdrus-gui__content` recebe as telas funcionais do LOWDRUS INSTALLER. O componente mantém a aparência desacoplada do LOWDRUS Engine.
 
-## Assets oficiais
+O app em `src/app/index.html` carrega o componente de `src/gui` e aponta explicitamente para os assets oficiais em `lowdrus_gui/assets`.
 
-O código espera o asset em `assets/lowdrus_razer_plush.mp4`. Nesta revisão o asset binário original foi reenviado pelo usuário, porém o conector GitHub desta sessão não expõe upload binário direto para o repositório; por isso não afirmamos que o MP4/preview já estejam versionados no GitHub.
+## Estrutura
 
-A identidade visual oficial a preservar é: fundo escuro, marca Razer ao centro e mascote/teclado no canto inferior direito.
+```
+lowdrus_gui/
+  assets/
+    lowdrus_razer_plush.mp4
+    preview.jpg
+
+src/
+  gui/
+    lowdrus-gui.css
+    lowdrus-gui.js
+  app/
+    index.html
+    installer.css
+    installer.js
+```

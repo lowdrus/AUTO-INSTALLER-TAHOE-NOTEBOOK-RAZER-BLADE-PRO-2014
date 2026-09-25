@@ -389,6 +389,7 @@ Este repositório deve hospedar o **código, automação, documentação e perfi
 - [ ] Validar USB e energia
 - [ ] Capturar perfil final do Razer
 - [x] Criar base visual oficial da interface LOWDRUS
+- [x] Organizar e integrar assets oficiais da GUI (`MP4` + `JPG`)
 - [ ] Criar modo one-click
 - [ ] Implementar atualização por GitHub Releases
 - [ ] Implementar rollback
@@ -405,7 +406,7 @@ Instalador offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e valida
 ## Atualização de desenvolvimento — 25/09/2026
 
 - macOS Tahoe 26.7 (25G229) instalado e inicializando no Razer.
-- Código/componente da interface visual oficial do LOWDRUS adicionado e sincronizado no repositório; o asset binário animado foi fornecido pelo usuário e continua pendente de versionamento direto caso ainda não esteja presente no GitHub.
+- Código/componente da interface visual oficial do LOWDRUS adicionado e sincronizado no repositório; os assets oficiais da GUI foram versionados em `lowdrus_gui/assets/` e o app foi ajustado para consumi-los diretamente.
 - Regra de áudio da GUI: **sem volume e sem controles de áudio**; o vídeo de fundo roda sempre mudo.
 - Adaptador USB prioritário identificado como **Realtek RTL8821CU**, VID `0BDA`, PID `C820`; o próprio `RtWlanU.kext` contém correspondência explícita para esse dispositivo/interface.
 - TESTE-07 confirmou boot normal com `RtWlanU.kext` e `RtWlanU1827.kext` injetados pelo OpenCore, mas o Tahoe rejeitou o driver por dependência não resolvida de `com.apple.iokit.IOUSBFamily`.

@@ -1,1 +1,61 @@
-(function(){const checks=[['hardware','Hardware Razer'],['lexar','Lexar LOWDRUS'],['efi','OpenCore / EFI'],['builder','Tahoe Builder'],['payload','InstallAssistant'],['samsung','Samsung SSD']];const shell=document.createElement('main');shell.className='li-shell';shell.innerHTML='<header><div class="li-brand">LOWDRUS INSTALLER</div><div class="li-sub">Razer Blade Pro • macOS Tahoe</div></header><section class="li-panel"><div id="checks"></div><div class="li-actions"><button id="install" class="li-btn primary" disabled>INSTALAR macOS TAHOE</button><button class="li-btn" data-action="diagnose">Diagnóstico</button><button class="li-btn" data-action="repair">Reparar</button><button class="li-btn" data-action="recover">Recuperação</button><button class="li-btn" data-action="logs">Logs</button></div><div id="status" class="li-status">Aguardando LOWDRUS Engine…</div><div class="li-advanced" data-action="advanced">▾ Ferramentas avançadas</div></section>';const mounted=LowdrusGUI.mount('#lowdrus',{src:'../gui/assets/lowdrus_razer_plush.mp4',content:shell,dim:true});mounted.video.muted=true;mounted.video.defaultMuted=true;mounted.video.volume=0;const list=shell.querySelector('#checks');checks.forEach(([id,label])=>{const row=document.createElement('div');row.className='li-row';row.dataset.id=id;row.dataset.state='pending';row.innerHTML='<span><i class="li-dot"></i>'+label+'</span><span class="value">Verificando…</span>';list.appendChild(row)});function render(snapshot){checks.forEach(([id])=>{const row=list.querySelector('[data-id="'+id+'"]'),v=snapshot.checks&&snapshot.checks[id]||{state:'pending',text:'Verificando…'};row.dataset.state=v.state;row.querySelector('.value').textContent=v.text});shell.querySelector('#status').textContent=snapshot.message||'Pronto.';shell.querySelector('#install').disabled=!snapshot.installReady}window.LowdrusInstaller={render};render({checks:{},installReady:false,message:'GUI pronta. LOWDRUS Engine ainda não conectado.'});shell.addEventListener('click',e=>{const a=e.target.dataset.action;if(a) window.dispatchEvent(new CustomEvent('lowdrus:action',{detail:{action:a}}))});})();
+(function(){
+  const checks=[
+    ['hardware','Hardware Razer'],
+    ['lexar','Lexar LOWDRUS'],
+    ['efi','OpenCore / EFI'],
+    ['builder','Tahoe Builder'],
+    ['payload','InstallAssistant'],
+    ['samsung','Samsung SSD']
+  ];
+
+  const shell=document.createElement('main');
+  shell.className='li-shell';
+  shell.innerHTML='<header><div class="li-brand">LOWDRUS INSTALLER</div><div class="li-sub">Razer Blade Pro • macOS Tahoe</div></header><section class="li-panel"><div id="checks"></div><div class="li-actions"><button id="install" class="li-btn primary" disabled>INSTALAR macOS TAHOE</button><button class="li-btn" data-action="diagnose">Diagnóstico</button><button class="li-btn" data-action="repair">Reparar</button><button class="li-btn" data-action="recover">Recuperação</button><button class="li-btn" data-action="logs">Logs</button></div><div id="status" class="li-status">Aguardando LOWDRUS Engine…</div><div class="li-advanced" data-action="advanced">▾ Ferramentas avançadas</div></section>';
+
+  const mounted=LowdrusGUI.mount('#lowdrus',{
+    src:'../../lowdrus_gui/assets/lowdrus_razer_plush.mp4',
+    poster:'../../lowdrus_gui/assets/preview.jpg',
+    content:shell,
+    dim:true
+  });
+
+  mounted.video.muted=true;
+  mounted.video.defaultMuted=true;
+  mounted.video.volume=0;
+
+  const list=shell.querySelector('#checks');
+
+  checks.forEach(([id,label])=>{
+    const row=document.createElement('div');
+    row.className='li-row';
+    row.dataset.id=id;
+    row.dataset.state='pending';
+    row.innerHTML='<span><i class="li-dot"></i>'+label+'</span><span class="value">Verificando…</span>';
+    list.appendChild(row);
+  });
+
+  function render(snapshot){
+    snapshot=snapshot||{};
+    checks.forEach(([id])=>{
+      const row=list.querySelector('[data-id="'+id+'"]');
+      const v=snapshot.checks&&snapshot.checks[id]||{state:'pending',text:'Verificando…'};
+      row.dataset.state=v.state;
+      row.querySelector('.value').textContent=v.text;
+    });
+    shell.querySelector('#status').textContent=snapshot.message||'Pronto.';
+    shell.querySelector('#install').disabled=!snapshot.installReady;
+  }
+
+  window.LowdrusInstaller={render,gui:mounted};
+
+  render({
+    checks:{},
+    installReady:false,
+    message:'GUI pronta. LOWDRUS Engine ainda não conectado.'
+  });
+
+  shell.addEventListener('click',e=>{
+    const a=e.target.dataset.action;
+    if(a) window.dispatchEvent(new CustomEvent('lowdrus:action',{detail:{action:a}}));
+  });
+})();
