@@ -405,7 +405,7 @@ Instalador offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e valida
 ## Atualização de desenvolvimento — 25/09/2026
 
 - macOS Tahoe 26.7 (25G229) instalado e inicializando no Razer.
-- Interface visual oficial do LOWDRUS adicionada ao repositório com fundo animado Razer e camada funcional desacoplada do Engine.
+- Código/componente da interface visual oficial do LOWDRUS adicionado e sincronizado no repositório; o asset binário animado foi fornecido pelo usuário e continua pendente de versionamento direto caso ainda não esteja presente no GitHub.
 - Regra de áudio da GUI: **sem volume e sem controles de áudio**; o vídeo de fundo roda sempre mudo.
 - Adaptador USB prioritário identificado como **Realtek RTL8821CU**, VID `0BDA`, PID `C820`; o próprio `RtWlanU.kext` contém correspondência explícita para esse dispositivo/interface.
 - TESTE-07 confirmou boot normal com `RtWlanU.kext` e `RtWlanU1827.kext` injetados pelo OpenCore, mas o Tahoe rejeitou o driver por dependência não resolvida de `com.apple.iokit.IOUSBFamily`.
