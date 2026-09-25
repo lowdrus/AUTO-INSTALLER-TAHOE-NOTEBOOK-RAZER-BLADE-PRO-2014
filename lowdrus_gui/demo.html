@@ -9,6 +9,11 @@
 <body><div id="app"></div>
 <script src="lowdrus-gui.js"></script>
 <script>
-const gui=LowdrusGUI.mount('#app',{dim:false,content:'<div class="panel"><b>LOWDRUS GUI</b><br><small>Área de conteúdo da sua aplicação</small><br><br><button onclick="gui.play()">▶ Play</button><button onclick="gui.pause()">⏸ Pausar</button></div>'});
+const gui = LowdrusGUI.mount('#app', {
+  src: 'assets/lowdrus_razer_plush.mp4',
+  poster: 'assets/preview.jpg',
+  dim: false,
+  content: '<div class="panel"><b>LOWDRUS GUI</b><br><small>Área de conteúdo da sua aplicação</small><br><br><button onclick="gui.play()">▶ Play</button><button onclick="gui.pause()">⏸ Pausar</button></div>'
+});
 </script>
 </body></html>
