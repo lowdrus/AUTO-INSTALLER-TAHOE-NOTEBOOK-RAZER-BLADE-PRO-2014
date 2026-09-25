@@ -34,7 +34,9 @@
 - [ ] eliminar Terminal do fluxo normal
 
 ## Fase 4 — GUI LOWDRUS INSTALLER
-- [ ] tela inicial/status
+- [x] base visual oficial / componente LOWDRUS GUI
+- [x] regra de áudio: vídeo sempre mudo, sem volume
+- [x] tela-base inicial/status
 - [ ] Instalar macOS Tahoe
 - [ ] Diagnóstico automático
 - [ ] Reparar automaticamente
@@ -46,11 +48,14 @@
 - [ ] bloquear operações destrutivas inseguras
 
 ## Fase 5 — Perfil final do Razer
+- [x] instalação/boot do Tahoe 26.7 (25G229)
 - [ ] GPU Intel HD 4600
 - [ ] áudio
 - [ ] Ethernet
-- [ ] Wi-Fi
-- [ ] Bluetooth
+- [ ] Wi-Fi USB RTL8821CU (VID 0BDA / PID C820) — prioridade atual
+- [ ] Bluetooth USB do combo RTL8821CU
+- [ ] Bluetooth interno Intel AC7260
+- [ ] Wi-Fi interno Intel AC7260
 - [ ] USB
 - [ ] energia/sleep
 - [ ] teclado/trackpad
@@ -88,3 +93,13 @@
 ## Fora do escopo deste repositório
 
 O LOWDRUS INSTALLER aqui documentado pertence ao fluxo **Razer + macOS Tahoe**. O projeto maior terá outros dois sistemas operacionais e um futuro menu principal com IA para os três sistemas. Esses componentes não devem ser misturados neste repositório.
+
+
+## Checkpoint de rede — 25/09/2026
+- [x] RTL8821CU confirmado no Windows e no USB do Tahoe
+- [x] V17 auditado; o dispositivo `0BDA:C820` está presente no `RtWlanU.kext`
+- [x] TESTE-07 inicializa Tahoe sem quebrar o boot
+- [x] kernel confirmou tentativa de carga do `RtWlanU`
+- [x] causa atual identificada: dependência `com.apple.iokit.IOUSBFamily` não resolvida no Tahoe
+- [x] TESTE-08 criado para investigação isolada
+- [ ] isolar solução de compatibilidade USB/Tahoe antes de qualquer root patch
