@@ -5,11 +5,18 @@ INTEGRAÇÃO RÁPIDA
 <div id="gui-bg" style="width:100%;height:100vh"></div>
 <script>
   const lowdrus = LowdrusGUI.mount('#gui-bg', {
+    src: 'assets/lowdrus_razer_plush.mp4',
+    poster: 'assets/preview.jpg',
     dim: false,
     content: '<div id="minha-interface"></div>'
   });
 </script>
 
 Depois coloque os elementos da sua interface dentro de #minha-interface.
+
+ASSETS
+- src: caminho do vídeo. Padrão: assets/lowdrus_razer_plush.mp4
+- poster: imagem exibida enquanto o vídeo carrega ou antes da reprodução. Padrão: assets/preview.jpg
+- Como src e poster possuem valores padrão, eles podem ser omitidos quando os assets estiverem nesses caminhos.
 
 OBSERVAÇÃO: o vídeo é sempre mudo e não existe controle de volume na GUI.
