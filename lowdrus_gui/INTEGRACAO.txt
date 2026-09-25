@@ -1,0 +1,14 @@
+INTEGRAÇÃO RÁPIDA
+
+<link rel="stylesheet" href="lowdrus_gui/lowdrus-gui.css">
+<script src="lowdrus_gui/lowdrus-gui.js"></script>
+<div id="gui-bg" style="width:100%;height:100vh"></div>
+<script>
+  const lowdrus = LowdrusGUI.mount('#gui-bg', {
+    muted: true,
+    dim: false,
+    content: '<div id="minha-interface"></div>'
+  });
+</script>
+
+Depois coloque os elementos da sua interface dentro de #minha-interface.
