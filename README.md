@@ -390,7 +390,7 @@ Este repositório deve hospedar o **código, automação, documentação e perfi
 - [ ] Capturar perfil final do Razer
 - [x] Criar base visual oficial da interface LOWDRUS
 - [x] Organizar e integrar assets oficiais da GUI (`MP4` + `JPG`)
-- [ ] Criar modo one-click
+- [x] Criar launcher one-click da GUI no Windows
 - [ ] Implementar atualização por GitHub Releases
 - [ ] Implementar rollback
 - [ ] Implementar recuperação interna no Samsung
@@ -411,3 +411,29 @@ Instalador offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e valida
 - Adaptador USB prioritário identificado como **Realtek RTL8821CU**, VID `0BDA`, PID `C820`; o próprio `RtWlanU.kext` contém correspondência explícita para esse dispositivo/interface.
 - TESTE-07 confirmou boot normal com `RtWlanU.kext` e `RtWlanU1827.kext` injetados pelo OpenCore, mas o Tahoe rejeitou o driver por dependência não resolvida de `com.apple.iokit.IOUSBFamily`.
 - TESTE-08 foi criado como laboratório separado para investigar compatibilidade USB/Tahoe sem alterar o TESTE-07 conhecido como inicializável.
+
+
+## GUI funcional integrada — 25/09/2026
+
+A interface oficial do **LOWDRUS INSTALLER** agora possui um runtime integrado no Windows:
+
+- entrada one-click: `LOWDRUS-INSTALLER.bat`;
+- Manager oficial: `src/manager/Lowdrus.Manager.ps1`;
+- Engine: `src/engine/windows/Lowdrus.Engine.ps1`;
+- assets oficiais: `lowdrus_gui/assets/lowdrus_razer_plush.mp4` e `preview.jpg`;
+- fundo animado sempre mudo;
+- visual escuro/minimalista da identidade LOWDRUS;
+- Estado do sistema e atualização do diagnóstico;
+- Diagnóstico completo com SHA-256 do Tahoe Builder e InstallAssistant;
+- inventário de hardware;
+- exportação de relatório JSON;
+- acesso aos logs/relatórios pela própria interface;
+- pre-flight de Reparação;
+- pre-flight de Recuperação;
+- proteção fail-safe: operações destrutivas e a instalação permanecem bloqueadas enquanto o perfil final do Razer ainda não estiver validado.
+
+A GUI antiga dependente de XAML não é necessária para o fluxo oficial. O Manager atual constrói a interface programaticamente, evitando o parser XAML que causou falhas nas revisões anteriores.
+
+### Regra de segurança
+
+`GUI pronta` não significa que hardware ainda pendente passou a ser considerado validado. O LOWDRUS somente habilitará instalação/reparação destrutiva depois que o perfil funcional do Razer Blade Pro RZ09-0117 estiver fechado. Até lá, Diagnóstico, Logs, Relatórios, Reparação e Recuperação operam em modo seguro/pre-flight.
