@@ -5,10 +5,11 @@ INTEGRAÇÃO RÁPIDA
 <div id="gui-bg" style="width:100%;height:100vh"></div>
 <script>
   const lowdrus = LowdrusGUI.mount('#gui-bg', {
-    muted: true,
     dim: false,
     content: '<div id="minha-interface"></div>'
   });
 </script>
 
 Depois coloque os elementos da sua interface dentro de #minha-interface.
+
+OBSERVAÇÃO: o vídeo é sempre mudo e não existe controle de volume na GUI.
