@@ -3,14 +3,14 @@ LOWDRUS GUI COMPONENT
 Componente visual oficial do LOWDRUS INSTALLER.
 
 ARQUIVOS
-- assets/lowdrus_razer_plush.mp4 : caminho esperado para o vídeo oficial 1920x1080.
-- assets/preview.jpg              : caminho esperado para o preview estático.
+- assets/lowdrus_razer_plush.mp4 : caminho padrão para o vídeo oficial 1920x1080.
+- assets/preview.jpg              : poster/fallback visual padrão, exibido durante o carregamento ou antes da reprodução do vídeo.
 - lowdrus-gui.js                  : componente sem dependências externas.
 - lowdrus-gui.css                 : estilos do componente.
 - demo.html                       : demonstração local.
 
 NOTA DE VERSIONAMENTO
-O MP4 e o preview foram fornecidos pelo usuário, mas o conector GitHub desta sessão não oferece upload binário direto. Portanto, os arquivos acima são caminhos esperados e não devem ser considerados publicados até conferência no repositório.
+O código está preparado para usar automaticamente os dois assets acima. Os binários MP4/JPG só devem ser considerados publicados quando os arquivos existirem de fato em lowdrus_gui/assets/ no repositório.
 
 ÁUDIO
 - O componente não possui controle de volume.
@@ -26,6 +26,17 @@ COMO USAR
    <div id="meu-background" style="width:100%;height:600px"></div>
 4. Monte o componente:
    const gui = LowdrusGUI.mount('#meu-background');
+
+ASSETS PADRÃO
+Sem opções adicionais, o componente usa:
+- src: assets/lowdrus_razer_plush.mp4
+- poster: assets/preview.jpg
+
+Você também pode sobrescrever os caminhos:
+   const gui = LowdrusGUI.mount('#meu-background', {
+     src: 'assets/lowdrus_razer_plush.mp4',
+     poster: 'assets/preview.jpg'
+   });
 
 PARA COLOCAR SUA GUI POR CIMA
 Use a opção content:
