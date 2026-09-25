@@ -11,8 +11,12 @@
     var content=root.querySelector('.lowdrus-gui__content');
     video.src=options.src || 'assets/lowdrus_razer_plush.mp4';
     video.muted=true;
-    video.volume=0;
     video.defaultMuted=true;
+    video.volume=0;
+    video.setAttribute('muted','');
+    video.addEventListener('volumechange',function(){
+      if(!video.muted || video.volume!==0){ video.muted=true; video.volume=0; }
+    });
     if(options.poster) video.poster=options.poster;
     if(options.fit) video.style.objectFit=options.fit;
     container.innerHTML='';
