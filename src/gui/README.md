@@ -16,8 +16,6 @@ A camada `.lowdrus-gui__content` recebe as telas funcionais do LOWDRUS INSTALLER
 
 ## Assets oficiais
 
-- `assets/lowdrus_razer_plush.mp4` — animação oficial fornecida pelo usuário;
-- `assets/preview.jpg` — preview estático da composição;
-- `lowdrus-gui.js` e `lowdrus-gui.css` — componente reutilizável.
+O código espera o asset em `assets/lowdrus_razer_plush.mp4`. Nesta revisão o asset binário original foi reenviado pelo usuário, porém o conector GitHub desta sessão não expõe upload binário direto para o repositório; por isso não afirmamos que o MP4/preview já estejam versionados no GitHub.
 
-A GUI oficial deve preservar a identidade visual enviada: fundo escuro com marca Razer ao centro e mascote/teclado no canto inferior direito.
+A identidade visual oficial a preservar é: fundo escuro, marca Razer ao centro e mascote/teclado no canto inferior direito.
