@@ -3,11 +3,14 @@ LOWDRUS GUI COMPONENT
 Componente visual oficial do LOWDRUS INSTALLER.
 
 ARQUIVOS
-- assets/lowdrus_razer_plush.mp4 : vídeo oficial 1920x1080 com a composição LOWDRUS/Razer.
-- assets/preview.jpg              : preview estático da GUI.
+- assets/lowdrus_razer_plush.mp4 : caminho esperado para o vídeo oficial 1920x1080.
+- assets/preview.jpg              : caminho esperado para o preview estático.
 - lowdrus-gui.js                  : componente sem dependências externas.
 - lowdrus-gui.css                 : estilos do componente.
 - demo.html                       : demonstração local.
+
+NOTA DE VERSIONAMENTO
+O MP4 e o preview foram fornecidos pelo usuário, mas o conector GitHub desta sessão não oferece upload binário direto. Portanto, os arquivos acima são caminhos esperados e não devem ser considerados publicados até conferência no repositório.
 
 ÁUDIO
 - O componente não possui controle de volume.
