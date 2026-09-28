@@ -1,43 +1,63 @@
 # Roadmap — LOWDRUS INSTALLER
 
+> Atualizado em 28/09/2026 após validações reais no Razer/Tahoe Recovery. O roadmap separa itens **validados**, **em teste** e **pendentes**. Os comandos manuais usados durante desenvolvimento/auditoria não fazem parte do fluxo final para o usuário.
+
 ## Fase 1 — Bootstrap
 - [x] Projeto de trabalho migrado para LOWDRUS-INSTALLER
 - [x] EFI funcional preservada
-- [x] Lexar preparada em GPT
+- [x] mídia LOWDRUS preparada em GPT
 - [x] EFI validada por SHA-256
 - [x] InstallAssistant.pkg copiado e validado
+- [x] identificar fortemente a mídia por tamanho/estrutura antes de operações destrutivas
 
-## Fase 2 — Tahoe Builder e transporte
+## Fase 2 — Tahoe Builder, transporte e mídia offline
 - [x] Investigar estrutura real do InstallAssistant.pkg
 - [x] Confirmar comportamento Apple para SharedSupport.dmg
 - [x] Reconstruir Tahoe Builder v0.1
 - [x] Validar estrutura estática do Builder
 - [x] Abandonar cópia direta do bundle para exFAT após falha
 - [x] Encapsular Builder em TAR para transporte
-- [x] Validar tamanho e SHA-256 do TAR na Lexar
+- [x] Validar tamanho/hash do TAR na mídia de desenvolvimento
 - [x] Confirmar leitura do TAR no Tahoe Recovery
-- [ ] Extrair Builder em filesystem macOS adequado
+- [x] Confirmar no Recovery que o TAR contém `Install macOS Tahoe.app`
+- [x] Confirmar `Contents/Resources/createinstallmedia`
+- [x] Confirmar `Contents/Resources/createinstallmedia.dylib`
+- [x] Confirmar `Contents/SharedSupport/SharedSupport.dmg`
+- [x] Confirmar acesso offline ao `InstallAssistant.pkg` (~17 GB) no Recovery
+- [x] Confirmar acesso offline ao `Tahoe-Builder.tar` (~17 GB) no Recovery
+- [x] Confirmar montagem/leitura do volume LOWDRUS no Tahoe Recovery
+- [x] documentar incompatibilidade observada de adaptador/leitor USB e validação após troca do adaptador
+- [ ] Extrair Builder em filesystem macOS adequado sem destruir a mídia-mestre
+- [ ] Validar integridade do bundle extraído antes da execução
 - [ ] Validar execução real de createinstallmedia/startosinstall
 - [ ] Criar mídia Tahoe totalmente inicializável
-- [ ] Validar instalação no Samsung
+- [ ] Validar boot do instalador sem internet
+- [ ] Validar instalação/reinstalação offline no Samsung
+- [ ] Validar preservação de dados no modo reinstalação/reparo quando aplicável
 
 ## Fase 3 — Engine sem Terminal
 - [ ] implementar detector seguro de hardware/discos
+- [ ] implementar identificação forte por modelo/serial/tamanho/partições
+- [ ] impedir seleção acidental do SSD interno ou de outra mídia
 - [ ] implementar preflight automático
-- [ ] implementar validação de EFI/Builder/payload
+- [ ] implementar validação de EFI/Builder/payload e hashes
 - [ ] implementar diagnóstico por regras
 - [ ] implementar auto-repair para erros conhecidos
 - [ ] implementar revalidação pós-reparo
 - [ ] implementar logs persistentes e exportação
 - [ ] implementar backup/rollback
 - [ ] detectar capacidades do Recovery/ambiente automaticamente
+- [ ] detectar ausência/incompatibilidade de adaptador USB/storage
+- [ ] suportar operação offline sem depender de Recovery pela internet
 - [ ] eliminar Terminal do fluxo normal
+- [ ] tornar reinicializações/retomada de estado automáticas
 
 ## Fase 4 — GUI LOWDRUS INSTALLER
 - [x] base visual oficial / componente LOWDRUS GUI
 - [x] regra de áudio: vídeo sempre mudo, sem volume
 - [x] tela-base inicial/status
 - [ ] Instalar macOS Tahoe
+- [ ] Reinstalar/Reparar instalação existente
 - [ ] Diagnóstico automático
 - [ ] Reparar automaticamente
 - [ ] Recuperação/rollback
@@ -46,54 +66,80 @@
 - [ ] Ferramentas avançadas
 - [ ] console técnico opcional e escondido do fluxo normal
 - [ ] bloquear operações destrutivas inseguras
+- [ ] confirmações amigáveis sem exigir comandos do usuário
+- [ ] mensagens claras para modo offline, mídia ausente e hardware incompatível
 
 ## Fase 5 — Perfil final do Razer
 - [x] instalação/boot do Tahoe 26.7 (25G229)
-- [ ] GPU Intel HD 4600
+- [ ] GPU Intel HD 4600 — validar aceleração/estabilidade final
+- [x] NVIDIA GTX 860M — estratégia atual: desabilitada no macOS
 - [ ] áudio
-- [ ] Ethernet
+- [ ] Ethernet Realtek RTL8168
 - [ ] Wi-Fi USB RTL8821CU (VID 0BDA / PID C820) — prioridade atual
 - [ ] Bluetooth USB do combo RTL8821CU
 - [ ] Bluetooth interno Intel AC7260
 - [ ] Wi-Fi interno Intel AC7260
-- [ ] USB
-- [ ] energia/sleep
+- [ ] USB — mapa/portas e estabilidade
+- [ ] energia/sleep/wake
+- [ ] bateria/SMC
 - [ ] teclado/trackpad
+- [ ] brilho/tela
 - [ ] pós-instalação
 - [ ] inventário completo
-- [ ] perfil versionado
+- [ ] perfil versionado com versões exatas, hashes e rollback
+- [ ] teste de cold boot/reboot/shutdown
+- [ ] teste de atualização do macOS sem perder boot/perfil
 
-## Fase 6 — Recuperação interna
+## Fase 6 — Root patches e compatibilidade Tahoe
+- [ ] recuperar/validar boot estável após o root patch atualmente em investigação
+- [ ] identificar exatamente todas as alterações feitas pelo OCLP-Mod/root patch
+- [ ] criar procedimento de rollback reproduzível antes de aplicar patches
+- [ ] validar AMFI/SIP/boot-args necessários e reduzir exceções ao mínimo
+- [ ] validar root patches isoladamente antes de incorporá-los ao LOWDRUS final
+- [ ] impedir aplicação automática de patch incompatível
+- [ ] registrar snapshot/backup antes e resultado depois de cada patch
+
+## Fase 7 — Recuperação interna
 - [ ] projetar partição/volume interno
 - [ ] preservar recuperação em reinstalações
-- [ ] testar boot sem Lexar
+- [ ] testar boot sem mídia LOWDRUS externa
 - [ ] manter Netac/mídia externa de emergência enquanto necessário
+- [ ] validar recuperação de EFI quebrada
+- [ ] validar recuperação de sistema que não inicia
 
-## Fase 7 — Atualização segura
+## Fase 8 — Atualização segura
 - [ ] capturar configuração conhecida como funcional
 - [ ] versionar EFI/OpenCore/ACPI/kexts/configurações e hashes
 - [ ] GitHub Releases + manifesto de compatibilidade
 - [ ] backup transacional
 - [ ] validação pós-update
 - [ ] rollback automático
+- [ ] bloquear atualização incompatível com hardware/macOS
 
-## Fase 8 — Evolução futura do LOWDRUS INSTALLER
+## Fase 9 — Testes de instalação e desastre
+- [ ] instalação limpa completa sem Terminal
+- [ ] reinstalação preservando dados quando suportada
+- [ ] instalação totalmente offline
+- [ ] recuperação após EFI inválida
+- [ ] recuperação após root patch incompatível
+- [ ] recuperação após interrupção/reboot inesperado
+- [ ] validar mídia em portas/adaptadores USB compatíveis
+- [ ] validar logs suficientes para diagnóstico por outro usuário
+- [ ] repetir instalação do zero para provar reprodutibilidade
+
+## Fase 10 — Evolução futura do LOWDRUS INSTALLER
 - [ ] formato de Hardware Profile reutilizável
 - [ ] matriz de compatibilidade
 - [ ] estudar perfis adicionais somente após o Razer/Tahoe estar estável
 - [ ] estudar outros macOS como perfis separados, sem presumir compatibilidade
 
-## Fase 9 — Suporte remoto opcional
+## Fase 11 — Suporte remoto opcional
 - [ ] validar Realtek RTL8168 no ambiente necessário
 - [ ] validar Intel AC7260 ou alternativa
 - [ ] serviço remoto autenticado quando houver rede
 - [ ] continuidade de logs entre reinicializações
 - [ ] modo totalmente offline
-
-## Fora do escopo deste repositório
-
-O LOWDRUS INSTALLER aqui documentado pertence ao fluxo **Razer + macOS Tahoe**. O projeto maior terá outros dois sistemas operacionais e um futuro menu principal com IA para os três sistemas. Esses componentes não devem ser misturados neste repositório.
-
+- [ ] garantir que suporte remoto nunca seja requisito para instalar/recuperar
 
 ## Checkpoint de rede — 25/09/2026
 - [x] RTL8821CU confirmado no Windows e no USB do Tahoe
@@ -102,4 +148,20 @@ O LOWDRUS INSTALLER aqui documentado pertence ao fluxo **Razer + macOS Tahoe**. 
 - [x] kernel confirmou tentativa de carga do `RtWlanU`
 - [x] causa atual identificada: dependência `com.apple.iokit.IOUSBFamily` não resolvida no Tahoe
 - [x] TESTE-08 criado para investigação isolada
-- [ ] isolar solução de compatibilidade USB/Tahoe antes de qualquer root patch
+- [ ] isolar solução de compatibilidade USB/Tahoe antes de qualquer novo root patch
+
+## Checkpoint LOWDRUS/Toshiba — 28/09/2026
+- [x] Toshiba/LOWDRUS enumerado no Tahoe Recovery após troca do adaptador/leitor USB
+- [x] GPT e partições LOWDRUS_EFI + LOWDRUS preservadas
+- [x] volume LOWDRUS montado e legível no Recovery
+- [x] InstallAssistant.pkg acessível offline
+- [x] Tahoe-Builder.tar acessível offline
+- [x] bundle `Install macOS Tahoe.app` confirmado dentro do TAR
+- [x] `createinstallmedia`, `.dylib` e `SharedSupport.dmg` confirmados
+- [ ] materializar o bundle em filesystem macOS adequado
+- [ ] validar execução do instalador offline
+- [ ] integrar o procedimento à Engine/GUI sem Terminal
+
+## Fora do escopo deste repositório
+
+O LOWDRUS INSTALLER aqui documentado pertence ao fluxo **Razer + macOS Tahoe**. O projeto maior terá outros dois sistemas operacionais e um futuro menu principal com IA para os três sistemas. Esses componentes não devem ser misturados neste repositório.
