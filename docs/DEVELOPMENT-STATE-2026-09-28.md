@@ -40,29 +40,30 @@ O LOWDRUS deve evoluir como ecossistema com as seguintes camadas:
 - SMBIOS MacBookPro11,2
 - SecureBootModel Disabled
 - Vault Optional
-- SIP observado como habilitado antes da linha de investigação de root patches
+- FileVault observado como Off durante a investigação de root patch
+- SIP/Authenticated Root foram alterados durante a investigação posterior de root patch; qualquer documentação do baseline final deve usar o estado efetivamente validado no checkpoint correspondente
 
 ### Atenção a boot-args
 
-A documentação do perfil deve sempre refletir o `config.plist` efetivamente validado, e não transcrições antigas ou anotações de memória. Qualquer divergência entre backup funcional, EFI de teste e notas deve ser resolvida pela leitura do arquivo efetivamente usado no boot correspondente.
+A documentação do perfil deve sempre refletir o `config.plist`/NVRAM efetivamente usados no boot correspondente, e não transcrições antigas ou anotações de memória.
 
-No baseline funcional auditado durante a investigação foram observados:
+Durante a investigação posterior foram confirmados boot-args contendo:
 
 ```text
--v debug=0x100 keepsyms=1 -wegnoegpu -no_compat_check
+-v debug=0x100 keepsyms=1 -wegnoegpu -no_compat_check revpatch=sbvmm amfi=0x80
 ```
 
-Não adicionar `revpatch=sbvmm` ao perfil final sem confirmar que ele está realmente presente no `config.plist` do checkpoint que será promovido a funcional.
+Isso **não significa** que todos esses argumentos devam entrar no perfil final. `amfi=0x80` foi usado como requisito experimental para root patch e possui impacto de segurança/compatibilidade; só pode ser promovido se existir necessidade comprovada, boot estável e rollback.
 
 ## Estado gráfico atual
 
-No Tahoe instalado, a Intel HD Graphics 4600 foi observada com:
+No Tahoe instalado, a Intel HD Graphics 4600 foi observada em checkpoint anterior com:
 
 - VRAM total: 7 MB
 - Device ID: `0x0412`
 - Revision ID: `0x0006`
 - resolução 1920×1080 @ 60 Hz
-- sem kext gráfico carregado segundo System Information naquele checkpoint
+- sem aceleração gráfica validada
 
 O baseline conhecido usava:
 
@@ -88,11 +89,11 @@ A Ethernet foi investigada e depois estacionada para concentrar os testes no Wi-
 
 - `RealtekRTL8111.kext` 2.4.2 carregou no Tahoe
 - interface `en0` apareceu
+- `system_profiler SPEthernetDataType` identificou Realtek RTL8168G/8111G, vendor `0x10ec`, device `0x8168`
 - estado físico permaneceu `inactive`
-- sem LEDs no RJ45 do notebook/roteador no teste registrado
-- TESTE-06 com RealtekRTL8111 3.0.0 também iniciou, mas permaneceu sem link
+- forçar `100baseTX full-duplex` não estabeleceu link
 
-Não promover nenhuma das duas versões como solução final de Ethernet com base apenas nesses testes.
+Não promover Ethernet como solução final com base nesses testes.
 
 ## Checkpoint Intel AC7260 Wi-Fi
 
@@ -102,43 +103,89 @@ Foi criado `EFI-WIFI-AC7260-TESTE-04` usando `itlwm.kext` 2.3.0. Tahoe iniciou, 
 
 A investigação completa do adaptador USB está registrada em `docs/NETWORK-RTL8821CU-TAHOE.md`.
 
-Pontos principais:
+Pontos confirmados:
 
-- VID/PID 0BDA:C820 confirmados
+- VID/PID `0BDA:C820`
 - interface Wi-Fi MI_02 e Bluetooth MI_00 no Windows
 - produto USB enumera no Tahoe
-- V17 auditado
+- projeto `chris1111/Wireless-USB-OC-Big-Sur-Adapter` auditado
+- `RtWlanU.kext` contém personalidade `RTL8821CU_C820_Combo`
+- `RtWlanU.kext` versão `1830.32.b27`
+- dependência declarada `com.apple.iokit.IOUSBFamily = 1.8`
 - TESTE-07 confirmou tentativa de carga do `RtWlanU`
-- falha: dependência `com.apple.iokit.IOUSBFamily` ausente/não resolvida
-- TESTE-08 criado como laboratório separado
-- AMFIPass passou a ser investigado como parte da compatibilidade/root patch, sem ser considerado solução validada ainda
+- falha principal: `com.apple.iokit.IOUSBFamily not found`
+- erro associado observado: `0xdc00800e`
+- Netac/KNUP também recebeu `RtWlanU.kext` isoladamente e `ocvalidate` 1.0.7 aprovou o `config.plist`; no boot pela ARATE_EFI o mesmo erro de dependência foi reproduzido
+
+Conclusão: enumeração USB, VID/PID e injeção OpenCore foram comprovadas; o bloqueio é a compatibilidade/dependência legada do driver no Tahoe.
+
+## OCLP-Mod / root patch — estado real atual
+
+Esta seção substitui qualquer nota antiga dizendo que nenhum root patch havia sido aplicado.
+
+Foi instalado/auditado **OCLP-Mod 3.1.9**. O código do patch `LegacyUSBHOST` foi revisado e usa componentes USB legados/compatibilidade de sistema, incluindo famílias relacionadas a IOUSBFamily/IOUSBHost.
+
+Durante os testes no Razer:
+
+- SIP e authenticated-root foram desabilitados para investigação de root patch
+- `amfi=0x80` foi adicionado aos boot-args e confirmado em NVRAM
+- a interface do OCLP-Mod deixou de bloquear a aplicação por AMFI
+- o root patch foi executado pela interface do OCLP-Mod
+- após reiniciar, o Tahoe deixou de concluir o boot normal
+- o travamento permaneceu mesmo com o adaptador C820 fisicamente desconectado
+- Safe Mode pelo OpenCore resultou em símbolo de proibido
+- macOS Recovery continuou funcional
+- grupo APFS System/Data foi confirmado íntegro no Recovery
+- snapshots APFS foram listados e preservados; nenhum snapshot foi apagado
+- tentativas de rollback via `bless` não concluíram com sucesso
+- o OCLP-Mod instalado no volume System não pôde ser executado diretamente no Recovery por ausência de `libffi.dylib` no ambiente reduzido
+
+Importante: a tela imediatamente anterior à aplicação do patch mostrou `Intel Wireless`; em checkpoint anterior o OCLP-Mod havia mostrado `Intel Wireless` e `Legacy USB`. Portanto, ainda não é seguro afirmar que somente o Legacy USB foi aplicado. O conjunto exato de alterações precisa ser auditado antes de qualquer promoção.
+
+**Regra:** nenhum root patch dessa linha pode entrar no LOWDRUS final até existir aplicação isolada, boot estável, inventário das mudanças e rollback reproduzível.
 
 ## Mídias e regras de segurança
 
-### Netac
+### Netac/KNUP
 
-A mídia Netac/OpenCore conhecida como funcional é contingência de recuperação. Regra operacional: **não modificar casualmente a Netac** durante experimentos.
+Mídia de contingência OpenCore/ARATE_EFI usada em testes. Durante a investigação C820 ela foi modificada de forma controlada para incluir `RtWlanU.kext`, com backup anterior e validação `ocvalidate`. Não deve receber novas alterações casuais enquanto o Tahoe está em recuperação.
 
 ### Kingston `LWIFI_TEST`
 
-Usado como mídia experimental de EFI.
+Pendrive experimental de EFI, aproximadamente 15,6 GB. Foi usado em checkpoints de rede e AMFIPass. Continua sendo mídia de laboratório, não mídia-mestre do instalador.
 
-Identificação conhecida:
+### Toshiba — mídia física atual do LOWDRUS Installer
 
-- Kingston DT 101 G2
-- label `LWIFI_TEST`
-- serial `001CC0C61232EC3113120095`
-- volume FAT32 observado com 15,588,130,816 bytes
+A mídia física atualmente confirmada para o projeto LOWDRUS Installer é:
 
-A letra de unidade é transitória. Reidentificar por múltiplos atributos antes de alterar EFI ou executar operação destrutiva.
+- `TOSHIBA External USB 3.0`
+- capacidade nominal ~128 GB
+- serial observado no Windows: `20140922020378`
+- GPT
+- partição `LOWDRUS_EFI` FAT32 ~536,9 MB
+- partição `LOWDRUS` exFAT ~127,5 GB no Recovery / ~118,7 GiB utilizáveis no Windows
 
-### SSD externo LOWDRUS (Lexar)
+No Windows, a EFI contém `BOOTx64.efi`, `OpenCore.efi` e `config.plist`.
 
-O dispositivo Lexar usado no fluxo do instalador deve ser referido como **SSD externo LOWDRUS (Lexar)**, não como pendrive.
+A partição `LOWDRUS` contém:
+
+- `InstallAssistant.pkg`
+- `LOWDRUS-TRANSPORT/Tahoe-Builder.tar`
+
+Descoberta de hardware: o primeiro adaptador/leitor SATA→USB usado com o Toshiba não foi enumerado corretamente pelo macOS Recovery. Após trocar o adaptador/leitor, o Toshiba apareceu imediatamente em `diskutil list`. Isso deve entrar no diagnóstico futuro do LOWDRUS como possível falha de bridge/adaptador USB.
+
+### Nota sobre nomenclatura Lexar x Toshiba
+
+Documentos mais antigos do repositório se referem ao **SSD externo LOWDRUS (Lexar)**. O estado de hardware observado nesta sessão usa **Toshiba** como mídia física conectada ao LOWDRUS. Isso deve ser tratado como evolução/troca de mídia ou discrepância histórica a ser resolvida explicitamente, nunca como se Lexar e Toshiba fossem automaticamente o mesmo dispositivo.
+
+Enquanto a origem dessa mudança não estiver documentada de forma definitiva, usar:
+
+- `mídia LOWDRUS atual (Toshiba)` para o dispositivo da sessão atual;
+- `SSD externo LOWDRUS (Lexar)` apenas ao descrever checkpoints históricos em que a Lexar foi realmente usada.
 
 ### Samsung interno
 
-O SSD Samsung interno com Tahoe instalado não deve ser apagado durante experimentos de EFI/rede. Operações destrutivas devem exigir identificação forte e confirmação apropriada.
+O SSD Samsung interno com Tahoe instalado não deve ser apagado durante experimentos de EFI/rede. Operações destrutivas exigem identificação forte e confirmação apropriada.
 
 ## Tahoe Builder / modo offline
 
@@ -146,20 +193,43 @@ Payload original validado:
 
 - Tahoe 26.7 build 25G229
 - `InstallAssistant.pkg`
-- tamanho observado: 18,381,960,622 bytes
+- tamanho observado: `18,381,960,622` bytes
 - SHA-256: `23261873087FCCA0432E6CCC293C858ED9CE5D22C528FFF801BB1653786FA9AE`
 
 Tahoe Builder transportado em TAR:
 
 - `Tahoe-Builder.tar`
-- tamanho: 18,437,734,400 bytes
+- tamanho: `18,437,734,400` bytes
 - SHA-256: `7EA862E4FB009E5E7AEBCA7F9A43B0AA8471149084841CBEF95F19BEA8EE53B4`
 
-No Tahoe Recovery foram observados dentro do bundle:
+No Tahoe Recovery foram confirmados dentro do TAR:
 
+- `Install macOS Tahoe.app`
 - `Install macOS Tahoe.app/Contents/Resources/createinstallmedia`
 - `Install macOS Tahoe.app/Contents/Resources/createinstallmedia.dylib`
 - `Install macOS Tahoe.app/Contents/SharedSupport/SharedSupport.dmg`
+
+Portanto, o payload offline necessário para materializar o instalador existe e está legível no Recovery.
+
+## Checkpoint de materialização no Recovery — estado atual
+
+O `df -h` do Recovery confirmou:
+
+- volume `LOWDRUS` montado, com aproximadamente 84 GiB livres
+- volume APFS `LOWDRUS_TAHOE_INSTALLER` disponível, com aproximadamente 37 GiB livres
+- volumes System/Data do Samsung com amplo espaço livre, mas eles não devem ser usados como destino de desenvolvimento enquanto houver volume dedicado
+
+Foi executado teste de escrita no volume APFS dedicado:
+
+```text
+touch /Volumes/LOWDRUS_TAHOE_INSTALLER/LOWDRUS-WRITE-TEST
+```
+
+seguido de `ls -l`, e o arquivo foi criado com sucesso.
+
+**VALIDADO:** `/Volumes/LOWDRUS_TAHOE_INSTALLER` é gravável no Recovery atual.
+
+**PENDENTE:** extrair/materializar `Install macOS Tahoe.app` nesse filesystem macOS adequado e validar sua integridade antes de executar qualquer ferramenta do instalador.
 
 A execução final do Builder e a instalação/reinstalação offline integral ainda precisam ser validadas de ponta a ponta.
 
@@ -181,13 +251,30 @@ O desenvolvimento pode usar PowerShell/Terminal para auditoria, mas o produto fi
 
 Um console técnico pode existir em Ferramentas avançadas, mas não como requisito para o fluxo comum.
 
-### Windows Manager
+### Perfil de entrada estilo Windows — atualização recente
 
-Durante o desenvolvimento, a tentativa de interface PowerShell/WPF apresentou falhas de XAML. Para evolução do Manager, preferir uma implementação mais robusta, como WinForms ou WPF programático, em vez de depender de pequenos remendos em XAML frágil.
+A atualização recente do repositório adicionou automação de pós-instalação para aproximar teclado/mouse do comportamento do Windows:
 
-### Áudio/visual
+- Ctrl físico -> Command do macOS
+- tecla Windows -> Control do macOS
+- Alt permanece Option
+- Natural scrolling desativado para roda no sentido esperado do Windows
+- LaunchAgent de usuário para persistência
+- script de rollback que remove somente as alterações LOWDRUS
 
-A regra registrada para os vídeos/animações da GUI é mantê-los sem áudio/volume. O LOWDRUS não deve tocar música ou efeitos sonoros automaticamente.
+Arquivos:
+
+- `scripts/macos/apply-windows-input-profile.sh`
+- `scripts/macos/restore-macos-input-profile.sh`
+- `docs/WINDOWS-LIKE-INPUT.md`
+
+**Estado correto:** código/documentação existem no repositório, mas ainda devem ser tratados como componente implementado do projeto, não como comportamento funcional comprovado no Razer até serem executados e validados no Tahoe real.
+
+### Windows Manager / Engine
+
+O repositório já contém Engine Windows e GUI/protótipo. O Engine valida tamanho/hash do Tahoe Builder e InstallAssistant e mantém `installReady=false`, portanto ainda não libera instalação destrutiva. Isso é coerente com o estado atual de segurança.
+
+Há, porém, nomenclatura legada `lexar` em checks/GUI/Engine. Como a mídia atual comprovada é Toshiba, essa nomenclatura deve ser refatorada futuramente para algo neutro como `lowdrusMedia`, preservando compatibilidade dos contratos enquanto necessário.
 
 ## Logs, auditoria e rollback
 
@@ -219,20 +306,22 @@ Regra para o produto/engenharia:
 - manter backup da configuração anterior
 - promover ao perfil final somente depois de boot + hardware + reboot/cold boot + rollback comprovados
 
-## Estado da candidata AMFIPass em 28/09/2026
+## Estado da candidata AMFIPass
 
 No Windows foi preparada uma EFI candidata com `AMFIPass.kext`.
 
-Fluxo executado:
+Fluxo registrado:
 
 - `ocvalidate` 1.0.7 aprovou a candidata
-- EFI anterior do Kingston foi renomeada/preservada como `EFI-BACKUP-PRE-AMFIPASS-PC`
-- candidata copiada para `G:\EFI`
+- EFI anterior do Kingston foi preservada como `EFI-BACKUP-PRE-AMFIPASS-PC`
+- candidata copiada para o Kingston
 - estrutura mínima verificada
 - `config.plist` da cópia instalada validado novamente
 - SHA-256 da candidata e da cópia instalada: `E31743DF2BBC6973204B19996C211EEE84743B317E45426CC8EB647C15C3C770`
 
 Isso é checkpoint de integridade no Windows, não validação funcional no Tahoe.
+
+Além disso, na investigação de root patch real foi utilizado `amfi=0x80` em NVRAM. A relação final entre AMFIPass, `amfi=0x80`, SIP e o conjunto mínimo necessário continua pendente e deve ser testada sem confundir preparação de EFI com resultado funcional.
 
 ## Critérios para marcar perfil como funcional
 
@@ -255,13 +344,16 @@ O perfil Tahoe/Razer não deve ser classificado como final apenas porque inicia 
 
 ## Itens ainda pendentes de documentação/implementação viva
 
-- documentar a aplicação real e o rollback de qualquer root patch aprovado
-- registrar resultado do primeiro boot da EFI com AMFIPass
-- registrar exatamente quais mudanças em SIP/AMFI/SecureBootModel forem realmente necessárias
+- recuperar o Tahoe atual do estado pós-root-patch
+- auditar exatamente qual patchset OCLP-Mod foi aplicado no boot quebrado
+- materializar `Install macOS Tahoe.app` em `LOWDRUS_TAHOE_INSTALLER`
+- validar bundle extraído antes de executar `createinstallmedia`/`startosinstall`
+- validar reinstalação offline preservando dados, se suportada pela rota escolhida
+- resolver/refatorar nomenclatura Lexar x Toshiba no Engine/GUI/documentação
+- testar de verdade o perfil Windows-like no Tahoe após recuperação
 - documentar solução final da HD4600 quando houver
 - documentar solução final de USB Wi-Fi/Bluetooth quando houver
 - consolidar no Hardware Profile somente componentes comprovados
-- atualizar README/ROADMAP sempre que um checkpoint experimental virar funcional
 - criar Releases e manifesto de compatibilidade quando a primeira versão distribuível existir
 
 ## Regra de manutenção do repositório
@@ -269,6 +361,7 @@ O perfil Tahoe/Razer não deve ser classificado como final apenas porque inicia 
 Mudanças importantes descobertas durante testes reais do LOWDRUS INSTALLER devem ser refletidas no repositório. A documentação deve distinguir claramente:
 
 - **validado**
+- **implementado mas ainda não validado no Razer**
 - **em teste**
 - **não validado / roadmap**
 
