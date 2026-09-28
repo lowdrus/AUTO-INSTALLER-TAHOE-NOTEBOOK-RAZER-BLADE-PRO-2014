@@ -91,7 +91,14 @@
 - [ ] teste de atualização do macOS sem perder boot/perfil
 
 ## Fase 6 — Root patches e compatibilidade Tahoe
-- [ ] recuperar/validar boot estável após o root patch atualmente em investigação
+- [x] preparar EFI candidata com `AMFIPass.kext` em laboratório Windows
+- [x] validar candidata com `ocvalidate` 1.0.7
+- [x] preservar EFI anterior do Kingston como `EFI-BACKUP-PRE-AMFIPASS-PC`
+- [x] copiar candidata ao Kingston `LWIFI_TEST`
+- [x] validar `config.plist` instalado no Kingston e conferir SHA-256 idêntico à candidata
+- [ ] inicializar o Razer pela EFI candidata com AMFIPass e registrar o resultado
+- [ ] confirmar se AMFIPass realmente carrega/atua no Tahoe 26.7
+- [ ] recuperar/validar boot estável após qualquer root patch aplicado
 - [ ] identificar exatamente todas as alterações feitas pelo OCLP-Mod/root patch
 - [ ] criar procedimento de rollback reproduzível antes de aplicar patches
 - [ ] validar AMFI/SIP/boot-args necessários e reduzir exceções ao mínimo
@@ -148,7 +155,21 @@
 - [x] kernel confirmou tentativa de carga do `RtWlanU`
 - [x] causa atual identificada: dependência `com.apple.iokit.IOUSBFamily` não resolvida no Tahoe
 - [x] TESTE-08 criado para investigação isolada
+- [x] dependências de `RtWlanU.kext` e `RtWlanU1827.kext` auditadas; ambos declaram `com.apple.iokit.IOUSBFamily = 1.8`
 - [ ] isolar solução de compatibilidade USB/Tahoe antes de qualquer novo root patch
+
+## Checkpoint AMFIPass — 28/09/2026
+- [x] EFI candidata criada em `C:\OCLP-AUDIT\EFI-CANDIDATA-AMFIPASS`
+- [x] `AMFIPass.kext` presente na candidata
+- [x] `ocvalidate` 1.0.7 aprovou a candidata
+- [x] EFI anterior do Kingston preservada como `G:\EFI-BACKUP-PRE-AMFIPASS-PC`
+- [x] candidata copiada para `G:\EFI`
+- [x] `BOOTx64.efi`, `OpenCore.efi`, `Lilu.kext` e `AMFIPass.kext` verificados na nova EFI
+- [x] `G:\EFI\OC\config.plist` validado novamente por `ocvalidate`
+- [x] SHA-256 da candidata e da cópia instalada coincidem: `E31743DF2BBC6973204B19996C211EEE84743B317E45426CC8EB647C15C3C770`
+- [ ] bootar o Razer com esta EFI e registrar resultado real
+- [ ] confirmar efeito sobre AMFI e compatibilidade do root patch
+- [ ] confirmar se a solução permite carregar os kexts Realtek no Tahoe 26.7
 
 ## Checkpoint LOWDRUS/Toshiba — 28/09/2026
 - [x] Toshiba/LOWDRUS enumerado no Tahoe Recovery após troca do adaptador/leitor USB
