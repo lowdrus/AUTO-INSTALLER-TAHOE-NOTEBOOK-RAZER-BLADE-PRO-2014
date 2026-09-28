@@ -50,7 +50,7 @@ Este projeto foi criado e está sendo validado no seguinte equipamento:
 - Intel HD 4600 platform-id: `05 00 26 0A`
 - Intel HD 4600 device-id: `12 04 00 00`
 
-Esses valores pertencem ao perfil de desenvolvimento atual e podem mudar conforme os testes avançarem.
+Esses valores pertencem ao perfil de desenvolvimento atual e podem mudar conforme os testes avançarem. O arquivo efetivamente usado no boot é sempre a fonte autoritativa para promoção de um checkpoint; transcrições antigas não devem substituir a leitura do `config.plist` real.
 
 ## Este projeto serve para qualquer PC ou notebook?
 
@@ -146,11 +146,15 @@ Portanto, o objetivo é **reduzir**, e não eliminar totalmente, a necessidade d
 
 O LOWDRUS foi projetado para futuramente oferecer **suporte remoto de diagnóstico durante instalação, recuperação e pós-instalação**, sempre que o ambiente em execução possuir uma interface de rede funcional.
 
-### Prioridade de conexão
+### Prioridade arquitetural de conexão
 
-1. **Ethernet** — caminho preferencial para instalação/Recovery por ser mais simples e previsível.
-2. **Wi-Fi** — caminho alternativo quando houver driver/kext compatível carregado no ambiente de instalação.
-3. **Offline/local** — se nenhuma rede funcionar, o LOWDRUS continua operando localmente e grava logs persistentes para análise posterior.
+A arquitetura geral considera Ethernet, Wi-Fi e operação offline. Porém, durante a validação prática de hardware atual, a ordem de trabalho foi redefinida para:
+1. **USB Wi-Fi/Bluetooth RTL8821CU** — prioridade atual de laboratório;
+2. **Ethernet Realtek RTL8168**;
+3. **Bluetooth interno Intel AC7260**;
+4. **Wi-Fi interno Intel AC7260**.
+
+A investigação de Ethernet foi estacionada enquanto o RTL8821CU é validado.
 
 ### Arquitetura planejada
 
@@ -324,6 +328,8 @@ Funções planejadas:
 - Restaurar versão anterior;
 - iniciar recuperação interna.
 
+O fluxo normal deve ser gráfico. PowerShell/Terminal continuam aceitáveis para desenvolvimento e auditoria, mas o usuário final não deve depender deles. Um console técnico poderá existir apenas em **Ferramentas avançadas**.
+
 ## Auditoria
 
 A meta é registrar:
@@ -338,7 +344,7 @@ A meta é registrar:
 
 Operações destrutivas devem exigir confirmação explícita e identificação forte do disco-alvo.
 
-## Estado de desenvolvimento — 23/09/2026
+## Estado de desenvolvimento — 28/09/2026
 
 Já validado:
 - migração do projeto para `LOWDRUS-INSTALLER`;
@@ -349,16 +355,37 @@ Já validado:
 - **42 arquivos da EFI/OpenCore copiados e comparados por SHA-256**;
 - partição de dados exFAT criada;
 - `InstallAssistant.pkg` copiado para o SSD externo LOWDRUS (Lexar);
-- SHA-256 do pacote copiado conferido com o original.
+- SHA-256 do pacote copiado conferido com o original;
+- Tahoe 26.7 build `25G229` instalado e inicializando no Razer;
+- Tahoe Builder transportado por TAR e inspecionado no Tahoe Recovery;
+- `createinstallmedia`, `createinstallmedia.dylib` e `SharedSupport.dmg` confirmados no bundle;
+- RTL8821CU `0BDA:C820` confirmado no Windows e no USB do Tahoe;
+- V17 auditado e compatibilidade explícita do VID/PID localizada no `RtWlanU.kext`;
+- TESTE-07 inicializa Tahoe e confirmou tentativa real de carga do `RtWlanU`;
+- causa do TESTE-07 localizada na dependência `com.apple.iokit.IOUSBFamily`;
+- TESTE-08 criado para investigação isolada;
+- EFI candidata com `AMFIPass.kext` validada por `ocvalidate` e copiada ao Kingston `LWIFI_TEST`, preservando backup da EFI anterior.
 
 Ainda pendente:
 - gerar/validar a estrutura completa de mídia de instalação do macOS;
+- validar execução real de `createinstallmedia`/instalador offline;
 - eliminar o fluxo manual de Terminal;
 - validar todos os dispositivos do notebook;
+- validar aceleração final da Intel HD 4600;
+- validar solução funcional para RTL8821CU no Tahoe;
+- registrar exatamente qualquer root patch, mudança de SIP/AMFI/SecureBootModel e respectivo rollback;
 - capturar o perfil final estável;
 - implementar mecanismo de atualização;
 - implementar recuperação interna;
 - testes de reinstalação e rollback.
+
+### Documentação técnica complementar
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — arquitetura do LOWDRUS INSTALLER.
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — fases, itens validados, em teste e pendentes.
+- [`docs/NETWORK-RTL8821CU-TAHOE.md`](docs/NETWORK-RTL8821CU-TAHOE.md) — auditoria V17, TESTE-07/08, `IOUSBFamily` e checkpoint AMFIPass.
+- [`docs/DEVELOPMENT-STATE-2026-09-28.md`](docs/DEVELOPMENT-STATE-2026-09-28.md) — consolidação de hardware, mídias, segurança, experimentos e decisões do projeto.
+- [`docs/CHECKPOINTS-29G-29O-TOSHIBA.md`](docs/CHECKPOINTS-29G-29O-TOSHIBA.md) — checkpoints do SSD externo LOWDRUS/Toshiba e Tahoe Recovery.
 
 ## Avisos
 
@@ -366,74 +393,6 @@ Ainda pendente:
 - Nunca reutilize uma EFI de outro computador sem revisão.
 - Não presuma compatibilidade entre modelos semelhantes.
 - Atualizações do macOS, OpenCore e kexts podem alterar compatibilidade.
-- Tenha sempre uma mídia externa de emergência mesmo após implementar recuperação interna.
-- O projeto não é afiliado à Apple, Razer ou OpenCore.
-
-## Licenciamento e distribuição do macOS
-
-Este repositório deve hospedar o **código, automação, documentação e perfis de configuração do LOWDRUS**, e não redistribuir de forma indevida os instaladores proprietários do macOS.
-
-## Roadmap
-
-- [x] Criar projeto LOWDRUS-INSTALLER
-- [x] Preservar EFI funcional
-- [x] Preparar GPT/EFI na mídia de desenvolvimento
-- [x] Validar EFI por SHA-256
-- [x] Copiar InstallAssistant.pkg e validar SHA-256
-- [ ] Criar mídia Tahoe totalmente inicializável
-- [x] Instalar Tahoe no Razer
-- [ ] Finalizar aceleração gráfica
-- [ ] Validar áudio
-- [ ] Validar Ethernet
-- [ ] Validar Wi-Fi/Bluetooth (RTL8821CU USB prioritário; AC7260 interno depois)
-- [ ] Validar USB e energia
-- [ ] Capturar perfil final do Razer
-- [x] Criar base visual oficial da interface LOWDRUS
-- [x] Organizar e integrar assets oficiais da GUI (`MP4` + `JPG`)
-- [x] Criar launcher one-click da GUI no Windows
-- [ ] Implementar atualização por GitHub Releases
-- [ ] Implementar rollback
-- [ ] Implementar recuperação interna no Samsung
-- [ ] Criar documentação de Release
-- [ ] Testar reinstalação integral sem procedimentos manuais
-
----
-
-**LOWDRUS INSTALLER**  
-Instalador offline de macOS Tahoe/Hackintosh, inicialmente desenvolvido e validado para o **Razer Blade Pro RZ09-0117 (2014)**.
-
-
-## Atualização de desenvolvimento — 25/09/2026
-
-- macOS Tahoe 26.7 (25G229) instalado e inicializando no Razer.
-- Código/componente da interface visual oficial do LOWDRUS adicionado e sincronizado no repositório; os assets oficiais da GUI foram versionados em `lowdrus_gui/assets/` e o app foi ajustado para consumi-los diretamente.
-- Regra de áudio da GUI: **sem volume e sem controles de áudio**; o vídeo de fundo roda sempre mudo.
-- Adaptador USB prioritário identificado como **Realtek RTL8821CU**, VID `0BDA`, PID `C820`; o próprio `RtWlanU.kext` contém correspondência explícita para esse dispositivo/interface.
-- TESTE-07 confirmou boot normal com `RtWlanU.kext` e `RtWlanU1827.kext` injetados pelo OpenCore, mas o Tahoe rejeitou o driver por dependência não resolvida de `com.apple.iokit.IOUSBFamily`.
-- TESTE-08 foi criado como laboratório separado para investigar compatibilidade USB/Tahoe sem alterar o TESTE-07 conhecido como inicializável.
-
-
-## GUI funcional integrada — 25/09/2026
-
-A interface oficial do **LOWDRUS INSTALLER** agora possui um runtime integrado no Windows:
-
-- entrada one-click: `LOWDRUS-INSTALLER.bat`;
-- Manager oficial: `src/manager/Lowdrus.Manager.ps1`;
-- Engine: `src/engine/windows/Lowdrus.Engine.ps1`;
-- assets oficiais: `lowdrus_gui/assets/lowdrus_razer_plush.mp4` e `preview.jpg`;
-- fundo animado sempre mudo;
-- visual escuro/minimalista da identidade LOWDRUS;
-- Estado do sistema e atualização do diagnóstico;
-- Diagnóstico completo com SHA-256 do Tahoe Builder e InstallAssistant;
-- inventário de hardware;
-- exportação de relatório JSON;
-- acesso aos logs/relatórios pela própria interface;
-- pre-flight de Reparação;
-- pre-flight de Recuperação;
-- proteção fail-safe: operações destrutivas e a instalação permanecem bloqueadas enquanto o perfil final do Razer ainda não estiver validado.
-
-A GUI antiga dependente de XAML não é necessária para o fluxo oficial. O Manager atual constrói a interface programaticamente, evitando o parser XAML que causou falhas nas revisões anteriores.
-
-### Regra de segurança
-
-`GUI pronta` não significa que hardware ainda pendente passou a ser considerado validado. O LOWDRUS somente habilitará instalação/reparação destrutiva depois que o perfil funcional do Razer Blade Pro RZ09-0117 estiver fechado. Até lá, Diagnóstico, Logs, Relatórios, Reparação e Recuperação operam em modo seguro/pre-flight.
+- Tenha sempre uma mídia externa de recuperação durante a fase de desenvolvimento.
+- A Netac conhecida como funcional é contingência e não deve ser usada como laboratório de mudanças.
+- O Kingston `LWIFI_TEST` é mídia experimental; a letra de unidade pode mudar e não deve ser usada como única identidade do dispositivo.
