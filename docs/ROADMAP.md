@@ -197,8 +197,13 @@
 - [x] tentativa #30Q.1 de extração para `C:\LOWDRUS-AUDIT` diagnosticada como incompleta por `No space left on device`
 - [x] hash `BA567583DC0CD4D86EE2D077BC0E5AA431FC7D5FAE0FA9C450B138D2E6C3BA80` INVALIDADO: pertence à cópia truncada de 6.564.912.640 bytes, não ao DMG completo
 - [x] regra de armazenamento: `C:` está criticamente cheio e não deve receber payloads/DMGs/TARs grandes; usar `F:\PROJETO\TRIBOOT`/NVMe para workspace pesado após auditoria do conteúdo existente
-- [ ] auditar `F:\PROJETO\TRIBOOT` e reaproveitar workspace existente sem duplicação
-- [ ] extrair e obter fingerprint válido do `SharedSupport.dmg` completo em volume com espaço suficiente
+- [x] #30R: `F:\PROJETO\TRIBOOT` auditado; `TAHOE-OFFLINE` = 17,126 GB, `TAHOE-REBUILD` = 17,289 GB, `LOWDRUS-INSTALLER` = 0,004 GB; F: tinha ~915,80 GB livres
+- [x] #30S: `SharedSupport.dmg` completo já localizado no workspace existente, sem nova extração: `F:\PROJETO\TRIBOOT\TAHOE-REBUILD\LOWDRUS-TAHOE-BUILDER\Applications\Install macOS Tahoe.app\Contents\SharedSupport\SharedSupport.dmg`
+- [x] #30T: `SharedSupport.dmg` = 18.381.960.622 bytes; SHA-256 `23261873087FCCA0432E6CCC293C858ED9CE5D22C528FFF801BB1653786FA9AE`
+- [x] #30T: `G:\InstallAssistant.pkg` = 18.381.960.622 bytes; SHA-256 `23261873087FCCA0432E6CCC293C858ED9CE5D22C528FFF801BB1653786FA9AE`
+- [x] #30T: comprovado que o `SharedSupport.dmg` do Builder e o `InstallAssistant.pkg` são IDENTICOS BIT-A-BIT. Este fato, isoladamente, não prova erro de reconstrução: fluxos conhecidos de construção de InstallAssistant usam `InstallAssistant.pkg` como `Contents/SharedSupport/SharedSupport.dmg`; a investigação deve agora validar se o PKG original é íntegro/esperado e se os metadados auxiliares necessários ao Tahoe 26.7 estão presentes.
+- [ ] validar integridade/origem Apple do `InstallAssistant.pkg` usando metadados de integridade disponíveis para o produto, se presentes
+- [ ] auditar arquivos auxiliares/metadados esperados ao lado de `SharedSupport.dmg` no Builder
 - [ ] comparar a origem do SharedSupport com a mídia criada pelo `createinstallmedia`
 - [ ] resolver `OSISVerifyBaseSystemOperation` e provar instalação offline completa
 - [ ] integrar o procedimento à Engine/GUI sem Terminal
