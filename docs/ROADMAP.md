@@ -1,6 +1,6 @@
 # Roadmap — LOWDRUS INSTALLER
 
-> Atualizado em 28/09/2026 após validações reais no Razer/Tahoe Recovery. O roadmap separa itens **validados**, **em teste** e **pendentes**. Os comandos manuais usados durante desenvolvimento/auditoria não fazem parte do fluxo final para o usuário.
+> Atualizado em 29/09/2026 após validações reais no Razer/Tahoe Recovery e auditoria pós-teste no Desktop. O roadmap separa itens **validados**, **em teste** e **pendentes**. Os comandos manuais usados durante desenvolvimento/auditoria não fazem parte do fluxo final para o usuário.
 
 ## Fase 1 — Bootstrap
 - [x] Projeto de trabalho migrado para LOWDRUS-INSTALLER
@@ -27,12 +27,11 @@
 - [x] Confirmar acesso offline ao `Tahoe-Builder.tar` (~17 GB) no Recovery
 - [x] Confirmar montagem/leitura do volume LOWDRUS no Tahoe Recovery
 - [x] documentar incompatibilidade observada de adaptador/leitor USB e validação após troca do adaptador
-- [ ] Extrair Builder em filesystem macOS adequado sem destruir a mídia-mestre
-- [ ] Validar integridade do bundle extraído antes da execução
-- [ ] Validar execução real de createinstallmedia/startosinstall
-- [ ] Criar mídia Tahoe totalmente inicializável
-- [ ] Validar boot do instalador sem internet
-- [ ] Validar instalação/reinstalação offline no Samsung
+- [x] Extrair/materializar Builder em filesystem macOS adequado sem destruir a mídia-mestre
+- [x] Validar execução real de `createinstallmedia`
+- [x] Criar mídia Tahoe inicializável com `createinstallmedia` (100%)
+- [x] Validar boot offline da mídia até o Tahoe Recovery/Installer
+- [ ] Validar instalação/reinstalação offline completa no Samsung — BLOQUEADA em verificação de SharedSupport/BaseSystem
 - [ ] Validar preservação de dados no modo reinstalação/reparo quando aplicável
 
 ## Fase 3 — Engine sem Terminal
@@ -126,7 +125,7 @@
 ## Fase 9 — Testes de instalação e desastre
 - [ ] instalação limpa completa sem Terminal
 - [ ] reinstalação preservando dados quando suportada
-- [ ] instalação totalmente offline
+- [ ] instalação totalmente offline — boot/Recovery PASS; instalação completa ainda FAIL
 - [ ] recuperação após EFI inválida
 - [ ] recuperação após root patch incompatível
 - [ ] recuperação após interrupção/reboot inesperado
@@ -171,7 +170,7 @@
 - [ ] confirmar efeito sobre AMFI e compatibilidade do root patch
 - [ ] confirmar se a solução permite carregar os kexts Realtek no Tahoe 26.7
 
-## Checkpoint LOWDRUS/Toshiba — 28/09/2026
+## Checkpoint LOWDRUS/Toshiba — 28–29/09/2026
 - [x] Toshiba/LOWDRUS enumerado no Tahoe Recovery após troca do adaptador/leitor USB
 - [x] GPT e partições LOWDRUS_EFI + LOWDRUS preservadas
 - [x] volume LOWDRUS montado e legível no Recovery
@@ -179,8 +178,29 @@
 - [x] Tahoe-Builder.tar acessível offline
 - [x] bundle `Install macOS Tahoe.app` confirmado dentro do TAR
 - [x] `createinstallmedia`, `.dylib` e `SharedSupport.dmg` confirmados
-- [ ] materializar o bundle em filesystem macOS adequado
-- [ ] validar execução do instalador offline
+- [x] materialização real do `Install macOS Tahoe.app` concluída
+- [x] `createinstallmedia` executado até 100%; mídia reportada como `Install macOS Tahoe`
+- [x] boot pelo OpenCore/NETAC e seleção de `Install macOS Tahoe (external)` aprovados
+- [x] Tahoe Recovery/Installer carregado a partir da mídia externa
+- [x] destino `Macintosh HD` reconhecido e instalação iniciada
+- [x] falha reproduzida durante instalação: mensagem gráfica `instalador está danificado`
+- [x] logs localizaram a etapa crítica em `Verifying SharedSupport.dmg` / `OSISVerifyBaseSystemOperation`
+- [x] log também registrou falha de verificação de relógio com `apple.com` no ambiente sem rede
+- [x] HD SATA/KP-HD843 permaneceu enumerado após a falha; comportamento RGB não é tratado como evidência de defeito
+- [x] leitura sustentada completa registrada no ciclo #29X: 18.381.960.622 bytes em 74,22 s após mudança de porta USB
+- [x] nova leitura sustentada registrada: 18.437.734.400 bytes em ~74,94 s
+- [x] pós-teste no Desktop: Toshiba identificado por modelo/serial/tamanho e preservado sem formatação
+- [x] `Tahoe-Builder.tar` revalidado: 18.437.734.400 bytes; SHA-256 `7EA862E4FB009E5E7AEBCA7F9A43B0AA8471149084841CBEF95F19BEA8EE53B4`
+- [x] `InstallAssistant.pkg` revalidado: 18.381.960.622 bytes; SHA-256 `23261873087FCCA0432E6CCC293C858ED9CE5D22C528FFF801BB1653786FA9AE`
+- [x] `bsdtar 3.8.8` confirmado no Desktop
+- [x] `SharedSupport.dmg` localizado dentro do TAR em `Install macOS Tahoe.app/Contents/SharedSupport/SharedSupport.dmg`
+- [x] tentativa #30Q.1 de extração para `C:\LOWDRUS-AUDIT` diagnosticada como incompleta por `No space left on device`
+- [x] hash `BA567583DC0CD4D86EE2D077BC0E5AA431FC7D5FAE0FA9C450B138D2E6C3BA80` INVALIDADO: pertence à cópia truncada de 6.564.912.640 bytes, não ao DMG completo
+- [x] regra de armazenamento: `C:` está criticamente cheio e não deve receber payloads/DMGs/TARs grandes; usar `F:\PROJETO\TRIBOOT`/NVMe para workspace pesado após auditoria do conteúdo existente
+- [ ] auditar `F:\PROJETO\TRIBOOT` e reaproveitar workspace existente sem duplicação
+- [ ] extrair e obter fingerprint válido do `SharedSupport.dmg` completo em volume com espaço suficiente
+- [ ] comparar a origem do SharedSupport com a mídia criada pelo `createinstallmedia`
+- [ ] resolver `OSISVerifyBaseSystemOperation` e provar instalação offline completa
 - [ ] integrar o procedimento à Engine/GUI sem Terminal
 
 ## Fora do escopo deste repositório
